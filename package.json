@@ -1,0 +1,21 @@
+{
+  "name": "apollo-ai-apps-client",
+  "version": "0.1.0",
+  "main": "index.js",
+  "scripts": {
+    "dev": "node ./scripts/dev.mjs",
+    "build": "node ./scripts/build.mjs && tsc src/index.ts --emitDeclarationOnly --declaration --outDir dist --skipLibCheck --lib ES2015,DOM --target ES2015",
+    "changeset:new": "npx @changesets/cli",
+    "changeset:version": "npx @changesets/cli version"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "@types/react": "^19.2.2",
+    "esbuild": "^0.25.12",
+    "react": "^19.2.0",
+    "typescript": "^5.9.3"
+  }
+}
