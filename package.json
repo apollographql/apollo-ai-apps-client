@@ -1,7 +1,9 @@
 {
   "name": "apollo-ai-apps-client",
   "version": "0.1.0",
-  "main": "index.js",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
     "dev": "node ./scripts/dev.mjs",
     "build": "node ./scripts/build.mjs && tsc src/index.ts --emitDeclarationOnly --declaration --outDir dist --skipLibCheck --lib ES2015,DOM --target ES2015",
@@ -17,5 +19,8 @@
     "esbuild": "^0.25.12",
     "react": "^19.2.0",
     "typescript": "^5.9.3"
+  },
+  "peerDependencies": {
+    "react": "^19.2.0"
   }
 }
