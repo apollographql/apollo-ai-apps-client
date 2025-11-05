@@ -32,7 +32,7 @@ export type OpenAiGlobals<
   widgetState: WidgetState | null;
 };
 
-type API<WidgetState extends UnknownObject> = {
+export type API<WidgetState extends UnknownObject> = {
   /** Calls a tool on your MCP. Returns the full response. */
   callTool: (name: string, args: Record<string, unknown>) => Promise<any>;
 

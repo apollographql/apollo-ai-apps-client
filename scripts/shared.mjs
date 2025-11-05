@@ -3,6 +3,6 @@ export const sharedConfig = {
   bundle: true,
   outdir: "dist",
   platform: "browser",
-  format: "cjs",
+  format: "esm",
   packages: "external",
 };

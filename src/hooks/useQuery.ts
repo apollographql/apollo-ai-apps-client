@@ -9,7 +9,7 @@ type UseQueryResponse<K> = {
   refresh: () => void;
 };
 
-export const useQuery = <K>(toolId: string, variables: Record<string, unknown> = {}): UseQueryResponse<K> => {
+export const useQuery = <K>(toolId: string, variables: Record<string, unknown>): UseQueryResponse<K> => {
   const toolOutput = useOpenAiGlobal("toolOutput");
   const callTool = useCallTool();
   const [loading, setLoading] = useState<boolean>(true);
