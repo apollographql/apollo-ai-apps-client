@@ -9,29 +9,33 @@ import { removeDirectivesFromDocument } from "@apollo/client/utilities/internal"
 import { parse } from "graphql";
 import "../types/openai";
 
+const toolCallLink = new ApolloLink((operation) => {
+  const context = operation.getContext();
+  const contextConfig = {
+    http: context.http,
+    options: context.fetchOptions,
+    credentials: context.credentials,
+    headers: context.headers,
+  };
+  const { query, variables } = selectHttpOptionsAndBody(operation, fallbackHttpConfig, contextConfig).body;
+
+  return Observable.from(
+    window.openai.callTool("execute_query", { query, variables })
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  ).pipe(Observable.map((result) => ({ data: (result as any).data as any })));
+});
+
+// TODO: In the future if/when we support PQs again, do pqLink.concat(toolCallLink)
+// Commenting this out for now.
+// const pqLink = new PersistedQueryLink({
+//   sha256: (queryString) => sha256(queryString),
+// });
+
 export class ExtendedApolloClient extends ApolloClient {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   constructor(options: { manifest: any }) {
     super({
-      link: new PersistedQueryLink({
-        sha256: (queryString) => sha256(queryString),
-      }).concat(
-        new ApolloLink((operation) => {
-          const context = operation.getContext();
-          const contextConfig = {
-            http: context.http,
-            options: context.fetchOptions,
-            credentials: context.credentials,
-            headers: context.headers,
-          };
-          const { extensions, variables } = selectHttpOptionsAndBody(operation, fallbackHttpConfig, contextConfig).body;
-
-          return Observable.from(
-            window.openai.callTool("execute_persisted_query", { id: extensions?.persistedQuery.sha256Hash, variables })
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          ).pipe(Observable.map((result) => ({ data: (result as any).data as any })));
-        })
-      ),
+      link: toolCallLink,
       cache: new InMemoryCache(),
       documentTransform: new DocumentTransform((document) => {
         return removeDirectivesFromDocument([{ name: "prefetch" }], document)!;
@@ -45,10 +49,10 @@ export class ExtendedApolloClient extends ApolloClient {
   async prefetchData(manifest: any) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     manifest.operations.forEach((operation: any) => {
-      if (operation.prefetch && window.openai.toolOutput.structuredContent[operation.id]) {
+      if (operation.prefetch && window.openai.toolOutput.structuredContent[operation.prefetchID]) {
         this.writeQuery({
           query: parse(operation.body),
-          data: window.openai.toolOutput.structuredContent[operation.id].data,
+          data: window.openai.toolOutput.structuredContent[operation.prefetchID].data,
         });
       }
     });

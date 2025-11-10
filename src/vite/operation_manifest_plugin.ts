@@ -26,8 +26,10 @@ export const OperationManifestPlugin = () => {
         operation.query.definitions.find((d) => d.kind === "OperationDefinition") as OperationDefinitionNode
       ).directives?.some((d) => d.name.value === "prefetch");
       const id = createHash("sha256").update(body).digest("hex");
+      // TODO: For now, you can only have 1 operation marked as prefetch. In the future, we'll likely support more than 1, and the "prefetchId" will be defined on the `@prefetch` itself as an argument
+      const prefetchID = prefetch ? "__anonymous" : undefined;
 
-      return Observable.of({ data: { id, name, type, body, prefetch } });
+      return Observable.of({ data: { id, name, type, body, prefetch, prefetchID } });
     }),
   });
 
@@ -63,12 +65,19 @@ export const OperationManifestPlugin = () => {
   };
 
   const generateManifest = async () => {
+    const operations = Array.from(cache.values()).flatMap((entry) => entry.operations);
+    if (operations.filter((o) => o.prefetch).length > 1) {
+      throw new Error(
+        "Found multiple operations marked as `@prefetch`. You can only mark 1 operation with `@prefetch`."
+      );
+    }
+
     const manifest = {
-      format: "apollo-persisted-query-manifest",
+      format: "apollo-ai-app-manifest",
       version: 1,
       operations: Array.from(cache.values()).flatMap((entry) => entry.operations),
     };
-    writeFileSync(".operation-manifest.json", JSON.stringify(manifest));
+    writeFileSync(".application-manifest.json", JSON.stringify(manifest));
   };
 
   return {
@@ -96,8 +105,8 @@ export const OperationManifestPlugin = () => {
     },
 
     writeBundle() {
-      const src = path.resolve(root, ".operation-manifest.json");
-      const dest = path.resolve(root, "dist/.operation-manifest.json");
+      const src = path.resolve(root, ".application-manifest.json");
+      const dest = path.resolve(root, "dist/.application-manifest.json");
       fs.mkdirSync(path.dirname(dest), { recursive: true });
       fs.copyFileSync(src, dest);
     },
