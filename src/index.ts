@@ -1,4 +1,5 @@
 export * from "./types/openai";
+export * from "./types/application-manifest";
 export * from "./hooks/useOpenAiGlobal";
 export * from "./hooks/useToolName";
 export * from "./hooks/useToolInput";

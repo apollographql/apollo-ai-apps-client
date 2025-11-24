@@ -1,14 +1,20 @@
 import { ApolloClient, ApolloLink, InMemoryCache } from "@apollo/client";
-import { PersistedQueryLink } from "@apollo/client/link/persisted-queries";
 import * as Observable from "rxjs";
-import { sha256 } from "crypto-hash";
 import { selectHttpOptionsAndBody } from "@apollo/client/link/http";
 import { fallbackHttpConfig } from "@apollo/client/link/http";
 import { DocumentTransform } from "@apollo/client";
 import { removeDirectivesFromDocument } from "@apollo/client/utilities/internal";
 import { parse } from "graphql";
 import "../types/openai";
+import { ApplicationManifest } from "../types/application-manifest";
 
+// TODO: In the future if/when we support PQs again, do pqLink.concat(toolCallLink)
+// Commenting this out for now.
+//  import { sha256 } from "crypto-hash";
+// import { PersistedQueryLink } from "@apollo/client/link/persisted-queries";
+// const pqLink = new PersistedQueryLink({
+//   sha256: (queryString) => sha256(queryString),
+// });
 const toolCallLink = new ApolloLink((operation) => {
   const context = operation.getContext();
   const contextConfig = {
@@ -19,28 +25,20 @@ const toolCallLink = new ApolloLink((operation) => {
   };
   const { query, variables } = selectHttpOptionsAndBody(operation, fallbackHttpConfig, contextConfig).body;
 
-  return Observable.from(
-    window.openai.callTool("execute", { query, variables })
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  ).pipe(Observable.map((result) => ({ data: result.structuredContent.data })));
+  return Observable.from(window.openai.callTool("execute", { query, variables })).pipe(
+    Observable.map((result) => ({ data: result.structuredContent.data }))
+  );
 });
-
-// TODO: In the future if/when we support PQs again, do pqLink.concat(toolCallLink)
-// Commenting this out for now.
-// const pqLink = new PersistedQueryLink({
-//   sha256: (queryString) => sha256(queryString),
-// });
 
 type ExtendedApolloClientOptions = Omit<ApolloClient.Options, "link" | "cache"> & {
   link?: ApolloClient.Options["link"];
   cache?: ApolloClient.Options["cache"];
-  manifest: any;
+  manifest: ApplicationManifest;
 };
 
 export class ExtendedApolloClient extends ApolloClient {
-  manifest: any;
+  manifest: ApplicationManifest;
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   constructor(options: ExtendedApolloClientOptions) {
     super({
       link: toolCallLink,
@@ -53,12 +51,10 @@ export class ExtendedApolloClient extends ApolloClient {
     this.manifest = options.manifest;
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async prefetchData() {
     // Write prefetched data to the cache
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    this.manifest.operations.forEach((operation: any) => {
-      if (operation.prefetch && window.openai.toolOutput.prefetch[operation.prefetchID]) {
+    this.manifest.operations.forEach((operation) => {
+      if (operation.prefetch && operation.prefetchID && window.openai.toolOutput.prefetch[operation.prefetchID]) {
         this.writeQuery({
           query: parse(operation.body),
           data: window.openai.toolOutput.prefetch[operation.prefetchID].data,
@@ -68,7 +64,7 @@ export class ExtendedApolloClient extends ApolloClient {
       // If this operation has the tool that matches up with the tool that was executed, write the tool result to the cache
       if (
         operation.tools?.find(
-          (tool: any) => `${this.manifest.name}--${tool.name}` === window.openai.toolResponseMetadata.toolName
+          (tool) => `${this.manifest.name}--${tool.name}` === window.openai.toolResponseMetadata.toolName
         )
       ) {
         // We need to include the variables that were used as part of the tool call so that we get a proper cache entry
@@ -85,7 +81,5 @@ export class ExtendedApolloClient extends ApolloClient {
         });
       }
     });
-
-    console.log("Loaded into cache:", this.extract());
   }
 }
