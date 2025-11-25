@@ -1,6 +1,9 @@
 {
   "name": "@apollo/client-ai-apps",
   "version": "0.1.0",
+  "publishConfig": {
+    "access": "public"
+  },
   "type": "module",
   "main": "dist/index.js",
   "module": "dist/index.js",
