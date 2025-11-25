@@ -43,4 +43,4 @@ jobs:
 
             - name: Publish to npm
               shell: bash
-              run: npm run publish --dry-run
+              run: npm publish --dry-run
