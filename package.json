@@ -17,17 +17,15 @@
     "build": "npm run build:react && npm run build:vite",
     "build:react": "node ./scripts/build.mjs && tsc src/index.ts --emitDeclarationOnly --declaration --outDir dist --skipLibCheck --lib ES2015,DOM --target ES2015 --moduleResolution bundler --jsx react",
     "build:vite": "node ./scripts/build-vite.mjs && tsc src/vite/index.ts --emitDeclarationOnly --declaration --outDir dist/vite --skipLibCheck --lib ES2015,DOM --target ES2020 --module esnext --moduleResolution node  --allowSyntheticDefaultImports",
-    "changeset": "npx @changesets/cli",
-    "changeset:version": "npx @changesets/cli version",
     "test": "vitest run --coverage",
-    "test:watch": "vitest --coverage"
+    "test:watch": "vitest --coverage",
+    "changeset": "knope document-change"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "description": "",
   "devDependencies": {
-    "@changesets/cli": "^2.29.7",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.0",
     "@types/node": "^24.10.0",

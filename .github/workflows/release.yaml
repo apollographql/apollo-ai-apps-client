@@ -33,11 +33,14 @@ jobs:
               shell: bash
               run: npm run test
 
-            - name: Publish to npm / Github Releases
-              uses: changesets/action@v1
+            - uses: knope-dev/action@v1
               with:
-                  version: npx changeset version
-                  publish: npm publish --provenance
-                  createGithubReleases: true
+                  version: 0.21.5
+
+            - run: knope release --dry-run
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+            - name: Publish to npm
+              shell: bash
+              run: npm run publish --dry-run
