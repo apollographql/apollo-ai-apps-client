@@ -3,16 +3,15 @@ name: Release new Version
 on:
     workflow_dispatch:
 
+permissions:
+    contents: write
+    id-token: write # Required for OIDC
+
 jobs:
     release:
         name: Release
         if: github.repository == 'apollographql/apollo-ai-apps-client'
         runs-on: ubuntu-latest
-        permissions:
-            contents: write # to create release (changesets/action)
-            issues: write # to post issue comments (changesets/action)
-            pull-requests: write # to create pull request (changesets/action)
-            id-token: write # to use OpenID Connect token for provenance (changesets/action)
         steps:
             - uses: actions/checkout@v4
 
@@ -20,6 +19,7 @@ jobs:
               uses: actions/setup-node@v4
               with:
                   node-version: 20.x
+                  registry-url: "https://registry.npmjs.org"
 
             - name: Install dependencies
               shell: bash
@@ -42,9 +42,9 @@ jobs:
               with:
                   version: 0.21.5
 
-            - run: knope release
-              env:
-                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            # - run: knope release
+            #   env:
+            #       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
             - name: Publish to npm
               shell: bash
