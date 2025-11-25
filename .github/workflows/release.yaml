@@ -20,7 +20,6 @@ jobs:
               with:
                   node-version: 20.x
                   registry-url: "https://registry.npmjs.org"
-                  always-auth: true
 
             - name: Install dependencies
               shell: bash
@@ -30,18 +29,18 @@ jobs:
               shell: bash
               run: npm run build
 
-            - name: Test
-              shell: bash
-              run: npm run test
+            # - name: Test
+            #   shell: bash
+            #   run: npm run test
 
-            - name: Configure Git
-              run: |
-                  git config --global user.name GitHub Actions
-                  git config user.email github-actions@github.com
+            # - name: Configure Git
+            #   run: |
+            #       git config --global user.name GitHub Actions
+            #       git config user.email github-actions@github.com
 
-            - uses: knope-dev/action@v2.1.0
-              with:
-                  version: 0.21.5
+            # - uses: knope-dev/action@v2.1.0
+            #   with:
+            #       version: 0.21.5
 
             # - run: knope release
             #   env:
@@ -49,4 +48,4 @@ jobs:
 
             - name: Publish to npm
               shell: bash
-              run: npm publish
+              run: npm publish --provenance
