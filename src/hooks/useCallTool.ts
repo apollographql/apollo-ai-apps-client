@@ -1,5 +1,3 @@
-import { useState, useEffect, useCallback } from "react";
-
 type UseCallToolResult = <K>(toolId: string, variables?: Record<string, unknown> | undefined) => Promise<K>;
 
 export const useCallTool = (): UseCallToolResult => {

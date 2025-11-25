@@ -1,8 +1,6 @@
-import { expect, test, describe, vi } from "vitest";
+import { expect, test, vi } from "vitest";
 import { ExtendedApolloProvider } from "./provider";
-import { ApplicationManifest } from "../types/application-manifest";
-import { parse } from "graphql";
-import { render, screen } from "@testing-library/react";
+import { render } from "@testing-library/react";
 import { ExtendedApolloClient } from "./client";
 import { SET_GLOBALS_EVENT_TYPE } from "../types/openai";
 
