@@ -50,4 +50,4 @@ jobs:
 
             - name: Publish to npm
               shell: bash
-              run: npm publish --provenance
+              run: npm publish --provenance --access public
