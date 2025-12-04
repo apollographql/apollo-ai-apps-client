@@ -59,7 +59,7 @@ export class ExtendedApolloClient extends ApolloClient {
   async prefetchData() {
     // Write prefetched data to the cache
     this.manifest.operations.forEach((operation) => {
-      if (operation.prefetch && operation.prefetchID && window.openai.toolOutput.prefetch[operation.prefetchID]) {
+      if (operation.prefetch && operation.prefetchID && window.openai.toolOutput.prefetch?.[operation.prefetchID]) {
         this.writeQuery({
           query: parse(operation.body),
           data: window.openai.toolOutput.prefetch[operation.prefetchID].data,
