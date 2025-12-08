@@ -1,6 +1,6 @@
 import { expect, test, vi } from "vitest";
 import { useToolInput } from "./useToolInput";
-import { renderHook, act } from "@testing-library/react";
+import { renderHook } from "@testing-library/react";
 
 test("Should return tool input when called", async () => {
   vi.stubGlobal("openai", {
