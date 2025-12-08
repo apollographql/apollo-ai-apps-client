@@ -57,32 +57,48 @@ export const ApplicationManifestPlugin = () => {
     link: new ApolloLink((operation) => {
       const body = print(removeClientDirective(sortTopLevelDefinitions(operation.query)));
       const name = operation.operationName;
-      const variables = (
-        operation.query.definitions.find((d) => d.kind === "OperationDefinition") as OperationDefinitionNode
-      ).variableDefinitions?.reduce(
+      const operationDefinition = operation.query.definitions.find(
+        (d): d is OperationDefinitionNode => d.kind === "OperationDefinition"
+      );
+
+      const variables = operationDefinition?.variableDefinitions?.reduce(
         (obj, varDef) => ({ ...obj, [varDef.variable.name.value]: getTypeName(varDef.type) }),
         {}
       );
-      const type = (
-        operation.query.definitions.find((d) => d.kind === "OperationDefinition") as OperationDefinitionNode
-      ).operation;
-      const prefetch = (
-        operation.query.definitions.find((d) => d.kind === "OperationDefinition") as OperationDefinitionNode
-      ).directives?.some((d) => d.name.value === "prefetch");
+      const type = operationDefinition?.operation;
+      const prefetch = operationDefinition?.directives?.some((d) => d.name.value === "prefetch");
       const id = createHash("sha256").update(body).digest("hex");
       // TODO: For now, you can only have 1 operation marked as prefetch. In the future, we'll likely support more than 1, and the "prefetchId" will be defined on the `@prefetch` itself as an argument
       const prefetchID = prefetch ? "__anonymous" : undefined;
 
-      const tools = (
-        operation.query.definitions.find((d) => d.kind === "OperationDefinition") as OperationDefinitionNode
-      ).directives
+      const description = operationDefinition?.description?.value;
+      let operationToolName: string | undefined = undefined;
+      let operationToolDescription: string | undefined = undefined;
+      if (description) {
+        const idx = description.indexOf("\n");
+        if (idx === -1) {
+          operationToolName = description;
+        } else {
+          operationToolName = description.substring(0, idx);
+          operationToolDescription = description.substring(idx + 1).trim();
+        }
+      }
+
+      const tools = operationDefinition.directives
         ?.filter((d) => d.name.value === "tool")
         .map((directive) => {
           const directiveArguments: Record<string, any> =
-            directive.arguments?.reduce((obj, arg) => ({ ...obj, [arg.name.value]: getRawValue(arg.value) }), {}) ?? {};
+            directive.arguments?.reduce(
+              (obj, arg) => ({
+                ...obj,
+                [arg.name.value]: getRawValue(arg.value),
+              }),
+              {}
+            ) ?? {};
+
           return {
-            name: directiveArguments["name"],
-            description: directiveArguments["description"],
+            name: directiveArguments["name"] || operationToolName,
+            description: directiveArguments["description"] || operationToolDescription,
             extraInputs: directiveArguments["extraInputs"],
           };
         });
