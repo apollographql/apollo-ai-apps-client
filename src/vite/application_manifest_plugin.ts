@@ -1,8 +1,9 @@
-import { readFileSync, writeFileSync } from "fs";
+import { readFileSync, writeFileSync, mkdirSync } from "fs";
 import { glob } from "glob";
 import { gqlPluckFromCodeStringSync } from "@graphql-tools/graphql-tag-pluck";
 import { createHash } from "crypto";
 import {
+  ArgumentNode,
   Kind,
   ListTypeNode,
   NamedTypeNode,
@@ -18,11 +19,9 @@ import {
 import { ApolloClient, ApolloLink, InMemoryCache } from "@apollo/client";
 import Observable from "rxjs";
 import path from "path";
-import fs from "fs";
 
 const root = process.cwd();
 
-// TODO: Do we need "validation" of the types for the different properties? Probably?
 const getRawValue = (node: ValueNode): any => {
   switch (node.kind) {
     case Kind.STRING:
@@ -35,10 +34,36 @@ const getRawValue = (node: ValueNode): any => {
         acc[field.name.value] = getRawValue(field.value);
         return acc;
       }, {});
+    default:
+      throw new Error(`Error when parsing directive values: unexpected type '${node.kind}'`);
   }
 };
 
-export function getTypeName(type: TypeNode): string {
+const getTypedDirectiveArgument = (
+  argumentName: string,
+  expectedType: Kind,
+  directiveArguments: readonly ArgumentNode[] | undefined
+) => {
+  if (!directiveArguments || directiveArguments.length === 0) {
+    return undefined;
+  }
+
+  let argument = directiveArguments.find((directiveArgument) => directiveArgument.name.value === argumentName);
+
+  if (!argument) {
+    return undefined;
+  }
+
+  if (argument.value.kind != expectedType) {
+    throw new Error(
+      `Expected argument '${argumentName}' to be of type '${expectedType}' but found '${argument.value.kind}' instead.`
+    );
+  }
+
+  return getRawValue(argument.value);
+};
+
+function getTypeName(type: TypeNode): string {
   let t = type;
   while (t.kind === "NonNullType" || t.kind === "ListType") {
     t = (t as NonNullTypeNode | ListTypeNode).type;
@@ -78,12 +103,22 @@ export const ApplicationManifestPlugin = () => {
       ).directives
         ?.filter((d) => d.name.value === "tool")
         .map((directive) => {
-          const directiveArguments: Record<string, any> =
-            directive.arguments?.reduce((obj, arg) => ({ ...obj, [arg.name.value]: getRawValue(arg.value) }), {}) ?? {};
+          const name = getTypedDirectiveArgument("name", Kind.STRING, directive.arguments);
+          const description = getTypedDirectiveArgument("description", Kind.STRING, directive.arguments);
+          const extraInputs = getTypedDirectiveArgument("extraInputs", Kind.LIST, directive.arguments);
+
+          if (!name) {
+            throw new Error("'name' argument must be supplied for @tool");
+          }
+
+          if (!description) {
+            throw new Error("'description' argument must be supplied for @tool");
+          }
+
           return {
-            name: directiveArguments["name"],
-            description: directiveArguments["description"],
-            extraInputs: directiveArguments["extraInputs"],
+            name,
+            description,
+            extraInputs,
           };
         });
 
@@ -174,7 +209,7 @@ export const ApplicationManifestPlugin = () => {
 
     if (config.command === "build") {
       const dest = path.resolve(root, config.build.outDir, ".application-manifest.json");
-      fs.mkdirSync(path.dirname(dest), { recursive: true });
+      mkdirSync(path.dirname(dest), { recursive: true });
       writeFileSync(dest, JSON.stringify(manifest));
     }
     // Always write to the dev location so that the app can bundle the manifest content
