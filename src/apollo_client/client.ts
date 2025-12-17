@@ -29,7 +29,7 @@ export class ExtendedApolloClient extends ApolloClient {
     const link = options.link ?? new ToolCallLink();
 
     if (__DEV__) {
-      validateLink(link);
+      validateTerminatingLink(link);
     }
 
     super({
@@ -89,7 +89,7 @@ export class ExtendedApolloClient extends ApolloClient {
   }
 }
 
-function validateLink(link: ApolloLink) {
+function validateTerminatingLink(link: ApolloLink) {
   let terminatingLink = link;
 
   while (terminatingLink.right) {
