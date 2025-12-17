@@ -34,7 +34,8 @@ describe("Client Basics", () => {
       format: "apollo-ai-app-manifest",
       version: "1",
       name: "the-store",
-      description: "An online store selling a variety of high quality products across many different categories.",
+      description:
+        "An online store selling a variety of high quality products across many different categories.",
       hash: "f6a24922f6ad6ed8c2aa57baf3b8242ae5f38a09a6df3f2693077732434c4256",
       operations: [
         {
@@ -44,7 +45,12 @@ describe("Client Basics", () => {
           body: "query Product($id: ID!) {\n  product(id: $id) {\n    id\n    title\n    rating\n    price\n    description\n    images\n    __typename\n  }\n}",
           variables: { id: "ID" },
           prefetch: false,
-          tools: [{ name: "Get Product", description: "Shows the details page for a specific product." }],
+          tools: [
+            {
+              name: "Get Product",
+              description: "Shows the details page for a specific product.",
+            },
+          ],
         },
       ],
       resource: "index.html",
@@ -55,9 +61,15 @@ describe("Client Basics", () => {
     });
 
     const variables = { id: "1" };
-    await client.query({ query: parse(manifest.operations[0].body), variables });
+    await client.query({
+      query: parse(manifest.operations[0].body),
+      variables,
+    });
 
-    expect(window.openai.callTool).toBeCalledWith("execute", { query: manifest.operations[0].body, variables });
+    expect(window.openai.callTool).toBeCalledWith("execute", {
+      query: manifest.operations[0].body,
+      variables,
+    });
     expect(client.extract()).toMatchInlineSnapshot(`
       {
         "Product:1": {
@@ -110,7 +122,8 @@ describe("prefetchData", () => {
       format: "apollo-ai-app-manifest",
       version: "1",
       name: "the-store",
-      description: "An online store selling a variety of high quality products across many different categories.",
+      description:
+        "An online store selling a variety of high quality products across many different categories.",
       hash: "f6a24922f6ad6ed8c2aa57baf3b8242ae5f38a09a6df3f2693077732434c4256",
       operations: [
         {
@@ -120,7 +133,12 @@ describe("prefetchData", () => {
           body: "query Product($id: ID!) {\n  product(id: $id) {\n    id\n    title\n    rating\n    price\n    description\n    images\n    __typename\n  }\n}",
           variables: { id: "ID" },
           prefetch: false,
-          tools: [{ name: "Get Product", description: "Shows the details page for a specific product." }],
+          tools: [
+            {
+              name: "Get Product",
+              description: "Shows the details page for a specific product.",
+            },
+          ],
         },
       ],
       resource: "index.html",
@@ -184,7 +202,8 @@ describe("prefetchData", () => {
       format: "apollo-ai-app-manifest",
       version: "1",
       name: "the-store",
-      description: "An online store selling a variety of high quality products across many different categories.",
+      description:
+        "An online store selling a variety of high quality products across many different categories.",
       hash: "f6a24922f6ad6ed8c2aa57baf3b8242ae5f38a09a6df3f2693077732434c4256",
       operations: [
         {
@@ -195,7 +214,12 @@ describe("prefetchData", () => {
           variables: {},
           prefetch: true,
           prefetchID: "__anonymous",
-          tools: [{ name: "Top Products", description: "Shows the currently highest rated products." }],
+          tools: [
+            {
+              name: "Top Products",
+              description: "Shows the currently highest rated products.",
+            },
+          ],
         },
       ],
       resource: "index.html",
@@ -273,7 +297,8 @@ describe("prefetchData", () => {
       format: "apollo-ai-app-manifest",
       version: "1",
       name: "the-store",
-      description: "An online store selling a variety of high quality products across many different categories.",
+      description:
+        "An online store selling a variety of high quality products across many different categories.",
       hash: "f6a24922f6ad6ed8c2aa57baf3b8242ae5f38a09a6df3f2693077732434c4256",
       operations: [
         {
@@ -283,7 +308,12 @@ describe("prefetchData", () => {
           body: "query Product($id: ID!) {\n  product(id: $id) {\n    id\n    title\n    rating\n    price\n    description\n    images\n    __typename\n  }\n}",
           variables: { id: "ID" },
           prefetch: false,
-          tools: [{ name: "Get Product", description: "Shows the details page for a specific product." }],
+          tools: [
+            {
+              name: "Get Product",
+              description: "Shows the details page for a specific product.",
+            },
+          ],
         },
         {
           id: "cd0d52159b9003e791de97c6a76efa03d34fe00cee278d1a3f4bfcec5fb3e1e6",
@@ -293,7 +323,12 @@ describe("prefetchData", () => {
           variables: {},
           prefetch: true,
           prefetchID: "__anonymous",
-          tools: [{ name: "Top Products", description: "Shows the currently highest rated products." }],
+          tools: [
+            {
+              name: "Top Products",
+              description: "Shows the currently highest rated products.",
+            },
+          ],
         },
       ],
       resource: "index.html",
@@ -367,7 +402,8 @@ describe("prefetchData", () => {
       format: "apollo-ai-app-manifest",
       version: "1",
       name: "the-store",
-      description: "An online store selling a variety of high quality products across many different categories.",
+      description:
+        "An online store selling a variety of high quality products across many different categories.",
       hash: "f6a24922f6ad6ed8c2aa57baf3b8242ae5f38a09a6df3f2693077732434c4256",
       operations: [
         {
@@ -377,7 +413,12 @@ describe("prefetchData", () => {
           body: "query Product($id: ID!) {\n  product(id: $id) {\n    id\n    title\n    rating\n    price\n    description\n    images\n    __typename\n  }\n}",
           variables: { id: "ID" },
           prefetch: false,
-          tools: [{ name: "Get Product", description: "Shows the details page for a specific product." }],
+          tools: [
+            {
+              name: "Get Product",
+              description: "Shows the details page for a specific product.",
+            },
+          ],
         },
       ],
       resource: "index.html",

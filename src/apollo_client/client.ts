@@ -26,15 +26,22 @@ const toolCallLink = new ApolloLink((operation) => {
     credentials: context.credentials,
     headers: context.headers,
   };
-  const { query, variables } = selectHttpOptionsAndBody(operation, fallbackHttpConfig, contextConfig).body;
+  const { query, variables } = selectHttpOptionsAndBody(
+    operation,
+    fallbackHttpConfig,
+    contextConfig
+  ).body;
 
-  return Observable.from(window.openai.callTool("execute", { query, variables })).pipe(
-    Observable.map((result) => ({ data: result.structuredContent.data }))
-  );
+  return Observable.from(
+    window.openai.callTool("execute", { query, variables })
+  ).pipe(Observable.map((result) => ({ data: result.structuredContent.data })));
 });
 
 // This allows us to extend the options with the "manifest" option AND make link/cache optional (they are normally required)
-type ExtendedApolloClientOptions = Omit<ApolloClient.Options, "link" | "cache"> & {
+type ExtendedApolloClientOptions = Omit<
+  ApolloClient.Options,
+  "link" | "cache"
+> & {
   link?: ApolloClient.Options["link"];
   cache?: ApolloClient.Options["cache"];
   manifest: ApplicationManifest;
@@ -49,7 +56,10 @@ export class ExtendedApolloClient extends ApolloClient {
       cache: options.cache ?? new InMemoryCache(),
       // Strip out the prefetch/tool directives so they don't get sent with the operation to the server
       documentTransform: new DocumentTransform((document) => {
-        return removeDirectivesFromDocument([{ name: "prefetch" }, { name: "tool" }], document)!;
+        return removeDirectivesFromDocument(
+          [{ name: "prefetch" }, { name: "tool" }],
+          document
+        )!;
       }),
     });
 
@@ -59,7 +69,11 @@ export class ExtendedApolloClient extends ApolloClient {
   async prefetchData() {
     // Write prefetched data to the cache
     this.manifest.operations.forEach((operation) => {
-      if (operation.prefetch && operation.prefetchID && window.openai.toolOutput.prefetch?.[operation.prefetchID]) {
+      if (
+        operation.prefetch &&
+        operation.prefetchID &&
+        window.openai.toolOutput.prefetch?.[operation.prefetchID]
+      ) {
         this.writeQuery({
           query: parse(operation.body),
           data: window.openai.toolOutput.prefetch[operation.prefetchID].data,
@@ -69,13 +83,18 @@ export class ExtendedApolloClient extends ApolloClient {
       // If this operation has the tool that matches up with the tool that was executed, write the tool result to the cache
       if (
         operation.tools?.find(
-          (tool) => `${this.manifest.name}--${tool.name}` === window.openai.toolResponseMetadata.toolName
+          (tool) =>
+            `${this.manifest.name}--${tool.name}` ===
+            window.openai.toolResponseMetadata.toolName
         )
       ) {
         // We need to include the variables that were used as part of the tool call so that we get a proper cache entry
         // However, we only want to include toolInput's that were graphql operation (ignore extraInputs)
         const variables = Object.keys(window.openai.toolInput).reduce(
-          (obj, key) => (operation.variables[key] ? { ...obj, [key]: window.openai.toolInput[key] } : obj),
+          (obj, key) =>
+            operation.variables[key] ?
+              { ...obj, [key]: window.openai.toolInput[key] }
+            : obj,
           {}
         );
 

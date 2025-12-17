@@ -17,7 +17,9 @@ test("Should update value when globals are updated and event it triggered", asyn
     });
     window.dispatchEvent(
       new CustomEvent(SET_GLOBALS_EVENT_TYPE, {
-        detail: { globals: { toolResponseMetadata: { toolName: "my-other-tool" } } },
+        detail: {
+          globals: { toolResponseMetadata: { toolName: "my-other-tool" } },
+        },
       })
     );
   });

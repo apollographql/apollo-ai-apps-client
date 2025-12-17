@@ -9,5 +9,7 @@ test("Should set display mode when returned function is called", async () => {
   const sendFollowUpMessage = useSendFollowUpMessage();
   await sendFollowUpMessage("Do a cool thing!");
 
-  expect(window.openai.sendFollowUpMessage).toBeCalledWith({ prompt: "Do a cool thing!" });
+  expect(window.openai.sendFollowUpMessage).toBeCalledWith({
+    prompt: "Do a cool thing!",
+  });
 });
