@@ -5,7 +5,9 @@ export const AbsoluteAssetImportsPlugin = () => {
     transformIndexHtml(html: string, ctx: any) {
       if (!ctx.server) return html;
 
-      let baseUrl = (ctx.server.config?.server?.origin ?? ctx.server.resolvedUrls?.local[0]).replace(/\/$/, "");
+      let baseUrl = (
+        ctx.server.config?.server?.origin ?? ctx.server.resolvedUrls?.local[0]
+      ).replace(/\/$/, "");
       baseUrl = baseUrl.replace(/\/$/, "");
 
       return (

@@ -10,7 +10,9 @@ let ctx = await esbuild.context({
       name: "rebuild-logger",
       setup(build) {
         build.onEnd((result) => {
-          console.log(`Rebuilt at ${new Date().toLocaleTimeString()} (${result.errors.length} errors)`);
+          console.log(
+            `Rebuilt at ${new Date().toLocaleTimeString()} (${result.errors.length} errors)`
+          );
         });
       },
     },

@@ -35,7 +35,9 @@ const getRawValue = (node: ValueNode): any => {
         return acc;
       }, {});
     default:
-      throw new Error(`Error when parsing directive values: unexpected type '${node.kind}'`);
+      throw new Error(
+        `Error when parsing directive values: unexpected type '${node.kind}'`
+      );
   }
 };
 
@@ -48,7 +50,9 @@ const getTypedDirectiveArgument = (
     return undefined;
   }
 
-  let argument = directiveArguments.find((directiveArgument) => directiveArgument.name.value === argumentName);
+  let argument = directiveArguments.find(
+    (directiveArgument) => directiveArgument.name.value === argumentName
+  );
 
   if (!argument) {
     return undefined;
@@ -80,39 +84,66 @@ export const ApplicationManifestPlugin = () => {
   const client = new ApolloClient({
     cache: clientCache,
     link: new ApolloLink((operation) => {
-      const body = print(removeClientDirective(sortTopLevelDefinitions(operation.query)));
+      const body = print(
+        removeClientDirective(sortTopLevelDefinitions(operation.query))
+      );
       const name = operation.operationName;
       const variables = (
-        operation.query.definitions.find((d) => d.kind === "OperationDefinition") as OperationDefinitionNode
+        operation.query.definitions.find(
+          (d) => d.kind === "OperationDefinition"
+        ) as OperationDefinitionNode
       ).variableDefinitions?.reduce(
-        (obj, varDef) => ({ ...obj, [varDef.variable.name.value]: getTypeName(varDef.type) }),
+        (obj, varDef) => ({
+          ...obj,
+          [varDef.variable.name.value]: getTypeName(varDef.type),
+        }),
         {}
       );
       const type = (
-        operation.query.definitions.find((d) => d.kind === "OperationDefinition") as OperationDefinitionNode
+        operation.query.definitions.find(
+          (d) => d.kind === "OperationDefinition"
+        ) as OperationDefinitionNode
       ).operation;
       const prefetch = (
-        operation.query.definitions.find((d) => d.kind === "OperationDefinition") as OperationDefinitionNode
+        operation.query.definitions.find(
+          (d) => d.kind === "OperationDefinition"
+        ) as OperationDefinitionNode
       ).directives?.some((d) => d.name.value === "prefetch");
       const id = createHash("sha256").update(body).digest("hex");
       // TODO: For now, you can only have 1 operation marked as prefetch. In the future, we'll likely support more than 1, and the "prefetchId" will be defined on the `@prefetch` itself as an argument
       const prefetchID = prefetch ? "__anonymous" : undefined;
 
       const tools = (
-        operation.query.definitions.find((d) => d.kind === "OperationDefinition") as OperationDefinitionNode
+        operation.query.definitions.find(
+          (d) => d.kind === "OperationDefinition"
+        ) as OperationDefinitionNode
       ).directives
         ?.filter((d) => d.name.value === "tool")
         .map((directive) => {
-          const name = getTypedDirectiveArgument("name", Kind.STRING, directive.arguments);
-          const description = getTypedDirectiveArgument("description", Kind.STRING, directive.arguments);
-          const extraInputs = getTypedDirectiveArgument("extraInputs", Kind.LIST, directive.arguments);
+          const name = getTypedDirectiveArgument(
+            "name",
+            Kind.STRING,
+            directive.arguments
+          );
+          const description = getTypedDirectiveArgument(
+            "description",
+            Kind.STRING,
+            directive.arguments
+          );
+          const extraInputs = getTypedDirectiveArgument(
+            "extraInputs",
+            Kind.LIST,
+            directive.arguments
+          );
 
           if (!name) {
             throw new Error("'name' argument must be supplied for @tool");
           }
 
           if (!description) {
-            throw new Error("'description' argument must be supplied for @tool");
+            throw new Error(
+              "'description' argument must be supplied for @tool"
+            );
           }
 
           return {
@@ -122,7 +153,9 @@ export const ApplicationManifestPlugin = () => {
           };
         });
 
-      return Observable.of({ data: { id, name, type, body, variables, prefetch, prefetchID, tools } });
+      return Observable.of({
+        data: { id, name, type, body, variables, prefetch, prefetchID, tools },
+      });
     }),
   });
 
@@ -146,16 +179,27 @@ export const ApplicationManifestPlugin = () => {
 
     const operations = [];
     for (const source of sources) {
-      const type = (source.node.definitions.find((d) => d.kind === "OperationDefinition") as OperationDefinitionNode)
-        .operation;
+      const type = (
+        source.node.definitions.find(
+          (d) => d.kind === "OperationDefinition"
+        ) as OperationDefinitionNode
+      ).operation;
 
       let result;
       if (type === "query") {
-        result = await client.query({ query: source.node, fetchPolicy: "no-cache" });
+        result = await client.query({
+          query: source.node,
+          fetchPolicy: "no-cache",
+        });
       } else if (type === "mutation") {
-        result = await client.mutate({ mutation: source.node, fetchPolicy: "no-cache" });
+        result = await client.mutate({
+          mutation: source.node,
+          fetchPolicy: "no-cache",
+        });
       } else {
-        throw new Error("Found an unsupported operation type. Only Query and Mutation are supported.");
+        throw new Error(
+          "Found an unsupported operation type. Only Query and Mutation are supported."
+        );
       }
       operations.push(result.data);
     }
@@ -168,7 +212,9 @@ export const ApplicationManifestPlugin = () => {
   };
 
   const generateManifest = async () => {
-    const operations = Array.from(cache.values()).flatMap((entry) => entry.operations);
+    const operations = Array.from(cache.values()).flatMap(
+      (entry) => entry.operations
+    );
     if (operations.filter((o) => o.prefetch).length > 1) {
       throw new Error(
         "Found multiple operations marked as `@prefetch`. You can only mark 1 operation with `@prefetch`."
@@ -199,7 +245,9 @@ export const ApplicationManifestPlugin = () => {
       name: packageJson.name,
       description: packageJson.description,
       hash: createHash("sha256").update(Date.now().toString()).digest("hex"),
-      operations: Array.from(cache.values()).flatMap((entry) => entry.operations),
+      operations: Array.from(cache.values()).flatMap(
+        (entry) => entry.operations
+      ),
       resource,
       csp: {
         connectDomains: packageJson.csp?.connectDomains ?? [],
@@ -208,7 +256,11 @@ export const ApplicationManifestPlugin = () => {
     };
 
     // Always write to build directory so the MCP server picks it up
-    const dest = path.resolve(root, config.build.outDir, ".application-manifest.json");
+    const dest = path.resolve(
+      root,
+      config.build.outDir,
+      ".application-manifest.json"
+    );
     mkdirSync(path.dirname(dest), { recursive: true });
     writeFileSync(dest, JSON.stringify(manifest));
 
@@ -279,8 +331,14 @@ export function sortTopLevelDefinitions(query: DocumentNode): DocumentNode {
     // non-executable definitions don't have to have names (even though any
     // DocumentNode actually passed here should only have executable
     // definitions).
-    const aName = a.kind === "OperationDefinition" || a.kind === "FragmentDefinition" ? a.name?.value ?? "" : "";
-    const bName = b.kind === "OperationDefinition" || b.kind === "FragmentDefinition" ? b.name?.value ?? "" : "";
+    const aName =
+      a.kind === "OperationDefinition" || a.kind === "FragmentDefinition" ?
+        (a.name?.value ?? "")
+      : "";
+    const bName =
+      b.kind === "OperationDefinition" || b.kind === "FragmentDefinition" ?
+        (b.name?.value ?? "")
+      : "";
 
     // Sort by name ascending.
     if (aName < bName) {
@@ -306,7 +364,9 @@ function removeClientDirective(doc: DocumentNode) {
     OperationDefinition(node) {
       return {
         ...node,
-        directives: node.directives?.filter((d) => d.name.value !== "prefetch" && d.name.value !== "tool"),
+        directives: node.directives?.filter(
+          (d) => d.name.value !== "prefetch" && d.name.value !== "tool"
+        ),
       };
     },
   });

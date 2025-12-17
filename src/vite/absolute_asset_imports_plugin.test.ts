@@ -96,5 +96,7 @@ test("Should not modify html when not running a local server", () => {
 
   let result = plugin.transformIndexHtml(html, ctx);
 
-  expect(result).toMatchInlineSnapshot(`"<html><head><script type="module" src="/@vite/client"></script></head><body><script module src="/assets/main.ts?t=12345"></script></body></html>"`);
+  expect(result).toMatchInlineSnapshot(
+    `"<html><head><script type="module" src="/@vite/client"></script></head><body><script module src="/assets/main.ts?t=12345"></script></body></html>"`
+  );
 });

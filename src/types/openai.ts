@@ -14,7 +14,7 @@ export type OpenAiGlobals<
   ToolInput extends UnknownObject = UnknownObject,
   ToolOutput extends UnknownObject = UnknownObject,
   ToolResponseMetadata extends UnknownObject = UnknownObject,
-  WidgetState extends UnknownObject = UnknownObject
+  WidgetState extends UnknownObject = UnknownObject,
 > = {
   theme: Theme;
   userAgent: UserAgent;
@@ -62,7 +62,10 @@ export class SetGlobalsEvent extends CustomEvent<{
   readonly type = SET_GLOBALS_EVENT_TYPE;
 }
 
-export type CallTool = (name: string, args: Record<string, unknown>) => Promise<any>;
+export type CallTool = (
+  name: string,
+  args: Record<string, unknown>
+) => Promise<any>;
 
 export type DisplayMode = "pip" | "inline" | "fullscreen";
 

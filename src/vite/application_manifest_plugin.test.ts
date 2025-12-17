@@ -23,7 +23,9 @@ vi.mock(import("path"), async (importOriginal) => {
   return {
     default: {
       ...actual.default,
-      resolve: vi.fn((...args) => args.map((a, i) => (i === 0 ? a : a.replace(/^\//, ""))).join("/")),
+      resolve: vi.fn((...args) =>
+        args.map((a, i) => (i === 0 ? a : a.replace(/^\//, ""))).join("/")
+      ),
       dirname: vi.fn(),
     },
   };
@@ -55,11 +57,17 @@ describe("buildStart", () => {
         `;
       }
     });
-    vi.spyOn(glob, "glob").mockImplementation(() => Promise.resolve(["my-component.tsx"]));
+    vi.spyOn(glob, "glob").mockImplementation(() =>
+      Promise.resolve(["my-component.tsx"])
+    );
     vi.spyOn(fs, "writeFileSync");
 
     const plugin = ApplicationManifestPlugin();
-    plugin.configResolved({ command: "serve", server: {}, build: { outDir: "/dist" } });
+    plugin.configResolved({
+      command: "serve",
+      server: {},
+      build: { outDir: "/dist" },
+    });
     await plugin.buildStart();
     let [file, content] = (fs.writeFileSync as unknown as Mock).mock.calls[0];
 
@@ -120,7 +128,9 @@ describe("buildStart", () => {
         `;
       }
     });
-    vi.spyOn(glob, "glob").mockImplementation(() => Promise.resolve(["my-component.tsx"]));
+    vi.spyOn(glob, "glob").mockImplementation(() =>
+      Promise.resolve(["my-component.tsx"])
+    );
     vi.spyOn(path, "resolve").mockImplementation((_, file) => file);
     vi.spyOn(fs, "writeFileSync");
 
@@ -141,11 +151,17 @@ describe("buildStart", () => {
         `;
       }
     });
-    vi.spyOn(glob, "glob").mockImplementation(() => Promise.resolve(["my-component.tsx"]));
+    vi.spyOn(glob, "glob").mockImplementation(() =>
+      Promise.resolve(["my-component.tsx"])
+    );
     vi.spyOn(fs, "writeFileSync");
 
     const plugin = ApplicationManifestPlugin();
-    plugin.configResolved({ command: "serve", server: {}, build: { outDir: "/dist" } });
+    plugin.configResolved({
+      command: "serve",
+      server: {},
+      build: { outDir: "/dist" },
+    });
     await plugin.buildStart();
     let [file, content] = (fs.writeFileSync as unknown as Mock).mock.calls[0];
 
@@ -180,11 +196,17 @@ describe("buildStart", () => {
         `;
       }
     });
-    vi.spyOn(glob, "glob").mockImplementation(() => Promise.resolve(["my-component.tsx"]));
+    vi.spyOn(glob, "glob").mockImplementation(() =>
+      Promise.resolve(["my-component.tsx"])
+    );
     vi.spyOn(fs, "writeFileSync");
 
     const plugin = ApplicationManifestPlugin();
-    plugin.configResolved({ command: "serve", server: {}, build: { outDir: "/dist" } });
+    plugin.configResolved({
+      command: "serve",
+      server: {},
+      build: { outDir: "/dist" },
+    });
     await plugin.buildStart();
     let [file, content] = (fs.writeFileSync as unknown as Mock).mock.calls[0];
 
@@ -231,11 +253,17 @@ describe("buildStart", () => {
         `;
       }
     });
-    vi.spyOn(glob, "glob").mockImplementation(() => Promise.resolve(["my-component.tsx"]));
+    vi.spyOn(glob, "glob").mockImplementation(() =>
+      Promise.resolve(["my-component.tsx"])
+    );
     vi.spyOn(fs, "writeFileSync");
 
     const plugin = ApplicationManifestPlugin();
-    plugin.configResolved({ command: "serve", server: {}, build: { outDir: "/dist" } });
+    plugin.configResolved({
+      command: "serve",
+      server: {},
+      build: { outDir: "/dist" },
+    });
     await plugin.buildStart();
     let [file, content] = (fs.writeFileSync as unknown as Mock).mock.calls[0];
 
@@ -284,13 +312,17 @@ describe("buildStart", () => {
         `;
       }
     });
-    vi.spyOn(glob, "glob").mockImplementation(() => Promise.resolve(["my-component.tsx"]));
+    vi.spyOn(glob, "glob").mockImplementation(() =>
+      Promise.resolve(["my-component.tsx"])
+    );
     vi.spyOn(path, "resolve").mockImplementation((_, file) => file);
     vi.spyOn(fs, "writeFileSync");
 
     const plugin = ApplicationManifestPlugin();
     plugin.configResolved({ command: "serve", server: {} });
-    await expect(async () => await plugin.buildStart()).rejects.toThrowErrorMatchingInlineSnapshot(
+    await expect(
+      async () => await plugin.buildStart()
+    ).rejects.toThrowErrorMatchingInlineSnapshot(
       `[Error: Found multiple operations marked as \`@prefetch\`. You can only mark 1 operation with \`@prefetch\`.]`
     );
   });
@@ -305,11 +337,17 @@ describe("buildStart", () => {
         `;
       }
     });
-    vi.spyOn(glob, "glob").mockImplementation(() => Promise.resolve(["my-component.tsx"]));
+    vi.spyOn(glob, "glob").mockImplementation(() =>
+      Promise.resolve(["my-component.tsx"])
+    );
     vi.spyOn(fs, "writeFileSync");
 
     const plugin = ApplicationManifestPlugin();
-    plugin.configResolved({ command: "serve", server: {}, build: { outDir: "/dist" } });
+    plugin.configResolved({
+      command: "serve",
+      server: {},
+      build: { outDir: "/dist" },
+    });
     await plugin.buildStart();
     let [file, content] = (fs.writeFileSync as unknown as Mock).mock.calls[0];
 
@@ -361,14 +399,18 @@ describe("buildStart", () => {
         `;
       }
     });
-    vi.spyOn(glob, "glob").mockImplementation(() => Promise.resolve(["my-component.tsx"]));
+    vi.spyOn(glob, "glob").mockImplementation(() =>
+      Promise.resolve(["my-component.tsx"])
+    );
     vi.spyOn(path, "resolve").mockImplementation((_, file) => file);
     vi.spyOn(fs, "writeFileSync");
 
     const plugin = ApplicationManifestPlugin();
     plugin.configResolved({ command: "serve", server: {} });
 
-    await expect(async () => await plugin.buildStart()).rejects.toThrowErrorMatchingInlineSnapshot(
+    await expect(
+      async () => await plugin.buildStart()
+    ).rejects.toThrowErrorMatchingInlineSnapshot(
       `[Error: Found an unsupported operation type. Only Query and Mutation are supported.]`
     );
   });
@@ -387,12 +429,19 @@ describe("buildStart", () => {
         `;
       }
     });
-    vi.spyOn(glob, "glob").mockImplementation(() => Promise.resolve(["my-component.tsx"]));
+    vi.spyOn(glob, "glob").mockImplementation(() =>
+      Promise.resolve(["my-component.tsx"])
+    );
     vi.spyOn(path, "resolve").mockImplementation((_, file) => file);
     vi.spyOn(fs, "writeFileSync");
 
     const plugin = ApplicationManifestPlugin();
-    plugin.configResolved({ command: "serve", mode: "staging", server: {}, build: { outDir: "/dist" } });
+    plugin.configResolved({
+      command: "serve",
+      mode: "staging",
+      server: {},
+      build: { outDir: "/dist" },
+    });
     await plugin.buildStart();
 
     let [file, content] = (fs.writeFileSync as unknown as Mock).mock.calls[0];
@@ -411,12 +460,18 @@ describe("buildStart", () => {
         `;
       }
     });
-    vi.spyOn(glob, "glob").mockImplementation(() => Promise.resolve(["my-component.tsx"]));
+    vi.spyOn(glob, "glob").mockImplementation(() =>
+      Promise.resolve(["my-component.tsx"])
+    );
     vi.spyOn(path, "resolve").mockImplementation((_, file) => file);
     vi.spyOn(fs, "writeFileSync");
 
     const plugin = ApplicationManifestPlugin();
-    plugin.configResolved({ command: "serve", server: { https: {}, port: "5678" }, build: { outDir: "/dist" } });
+    plugin.configResolved({
+      command: "serve",
+      server: { https: {}, port: "5678" },
+      build: { outDir: "/dist" },
+    });
     await plugin.buildStart();
 
     let [file, content] = (fs.writeFileSync as unknown as Mock).mock.calls[0];
@@ -435,7 +490,9 @@ describe("buildStart", () => {
         `;
       }
     });
-    vi.spyOn(glob, "glob").mockImplementation(() => Promise.resolve(["my-component.tsx"]));
+    vi.spyOn(glob, "glob").mockImplementation(() =>
+      Promise.resolve(["my-component.tsx"])
+    );
     vi.spyOn(path, "resolve").mockImplementation((_, file) => file);
     vi.spyOn(fs, "writeFileSync");
 
@@ -463,14 +520,18 @@ describe("buildStart", () => {
         `;
       }
     });
-    vi.spyOn(glob, "glob").mockImplementation(() => Promise.resolve(["my-component.tsx"]));
+    vi.spyOn(glob, "glob").mockImplementation(() =>
+      Promise.resolve(["my-component.tsx"])
+    );
     vi.spyOn(path, "resolve").mockImplementation((_, file) => file);
     vi.spyOn(fs, "writeFileSync");
 
     const plugin = ApplicationManifestPlugin();
     plugin.configResolved({ command: "serve", server: {} });
 
-    await expect(async () => await plugin.buildStart()).rejects.toThrowErrorMatchingInlineSnapshot(
+    await expect(
+      async () => await plugin.buildStart()
+    ).rejects.toThrowErrorMatchingInlineSnapshot(
       `[Error: 'name' argument must be supplied for @tool]`
     );
   });
@@ -485,14 +546,18 @@ describe("buildStart", () => {
         `;
       }
     });
-    vi.spyOn(glob, "glob").mockImplementation(() => Promise.resolve(["my-component.tsx"]));
+    vi.spyOn(glob, "glob").mockImplementation(() =>
+      Promise.resolve(["my-component.tsx"])
+    );
     vi.spyOn(path, "resolve").mockImplementation((_, file) => file);
     vi.spyOn(fs, "writeFileSync");
 
     const plugin = ApplicationManifestPlugin();
     plugin.configResolved({ command: "serve", server: {} });
 
-    await expect(async () => await plugin.buildStart()).rejects.toThrowErrorMatchingInlineSnapshot(
+    await expect(
+      async () => await plugin.buildStart()
+    ).rejects.toThrowErrorMatchingInlineSnapshot(
       `[Error: 'description' argument must be supplied for @tool]`
     );
   });
@@ -507,14 +572,18 @@ describe("buildStart", () => {
         `;
       }
     });
-    vi.spyOn(glob, "glob").mockImplementation(() => Promise.resolve(["my-component.tsx"]));
+    vi.spyOn(glob, "glob").mockImplementation(() =>
+      Promise.resolve(["my-component.tsx"])
+    );
     vi.spyOn(path, "resolve").mockImplementation((_, file) => file);
     vi.spyOn(fs, "writeFileSync");
 
     const plugin = ApplicationManifestPlugin();
     plugin.configResolved({ command: "serve", server: {} });
 
-    await expect(async () => await plugin.buildStart()).rejects.toThrowErrorMatchingInlineSnapshot(
+    await expect(
+      async () => await plugin.buildStart()
+    ).rejects.toThrowErrorMatchingInlineSnapshot(
       `[Error: Expected argument 'name' to be of type 'StringValue' but found 'BooleanValue' instead.]`
     );
   });
@@ -529,14 +598,18 @@ describe("buildStart", () => {
         `;
       }
     });
-    vi.spyOn(glob, "glob").mockImplementation(() => Promise.resolve(["my-component.tsx"]));
+    vi.spyOn(glob, "glob").mockImplementation(() =>
+      Promise.resolve(["my-component.tsx"])
+    );
     vi.spyOn(path, "resolve").mockImplementation((_, file) => file);
     vi.spyOn(fs, "writeFileSync");
 
     const plugin = ApplicationManifestPlugin();
     plugin.configResolved({ command: "serve", server: {} });
 
-    await expect(async () => await plugin.buildStart()).rejects.toThrowErrorMatchingInlineSnapshot(
+    await expect(
+      async () => await plugin.buildStart()
+    ).rejects.toThrowErrorMatchingInlineSnapshot(
       `[Error: Expected argument 'description' to be of type 'StringValue' but found 'BooleanValue' instead.]`
     );
   });
@@ -551,14 +624,18 @@ describe("buildStart", () => {
         `;
       }
     });
-    vi.spyOn(glob, "glob").mockImplementation(() => Promise.resolve(["my-component.tsx"]));
+    vi.spyOn(glob, "glob").mockImplementation(() =>
+      Promise.resolve(["my-component.tsx"])
+    );
     vi.spyOn(path, "resolve").mockImplementation((_, file) => file);
     vi.spyOn(fs, "writeFileSync");
 
     const plugin = ApplicationManifestPlugin();
     plugin.configResolved({ command: "serve", server: {} });
 
-    await expect(async () => await plugin.buildStart()).rejects.toThrowErrorMatchingInlineSnapshot(
+    await expect(
+      async () => await plugin.buildStart()
+    ).rejects.toThrowErrorMatchingInlineSnapshot(
       `[Error: Expected argument 'extraInputs' to be of type 'ListValue' but found 'BooleanValue' instead.]`
     );
   });
@@ -575,14 +652,18 @@ describe("buildStart", () => {
         `;
       }
     });
-    vi.spyOn(glob, "glob").mockImplementation(() => Promise.resolve(["my-component.tsx"]));
+    vi.spyOn(glob, "glob").mockImplementation(() =>
+      Promise.resolve(["my-component.tsx"])
+    );
     vi.spyOn(path, "resolve").mockImplementation((_, file) => file);
     vi.spyOn(fs, "writeFileSync");
 
     const plugin = ApplicationManifestPlugin();
     plugin.configResolved({ command: "serve", server: {} });
 
-    await expect(async () => await plugin.buildStart()).rejects.toThrowErrorMatchingInlineSnapshot(
+    await expect(
+      async () => await plugin.buildStart()
+    ).rejects.toThrowErrorMatchingInlineSnapshot(
       `[Error: Error when parsing directive values: unexpected type 'FloatValue']`
     );
   });
@@ -608,11 +689,17 @@ describe("buildStart", () => {
         `;
       }
     });
-    vi.spyOn(glob, "glob").mockImplementation(() => Promise.resolve(["my-component.tsx"]));
+    vi.spyOn(glob, "glob").mockImplementation(() =>
+      Promise.resolve(["my-component.tsx"])
+    );
     vi.spyOn(fs, "writeFileSync");
 
     const plugin = ApplicationManifestPlugin();
-    plugin.configResolved({ command: "serve", server: {}, build: { outDir: "/dist" } });
+    plugin.configResolved({
+      command: "serve",
+      server: {},
+      build: { outDir: "/dist" },
+    });
     await plugin.buildStart();
     let [file, content] = (fs.writeFileSync as unknown as Mock).mock.calls[0];
 
@@ -692,13 +779,20 @@ describe("writeBundle", () => {
         `;
       }
     });
-    vi.spyOn(glob, "glob").mockImplementation(() => Promise.resolve(["my-component.tsx"]));
+    vi.spyOn(glob, "glob").mockImplementation(() =>
+      Promise.resolve(["my-component.tsx"])
+    );
     vi.spyOn(path, "resolve").mockImplementation((_, file) => file);
     vi.spyOn(path, "dirname").mockImplementation(() => "/dist");
     vi.spyOn(fs, "writeFileSync");
 
     const plugin = ApplicationManifestPlugin();
-    plugin.configResolved({ command: "build", mode: "staging", server: {}, build: { outDir: "/dist/" } });
+    plugin.configResolved({
+      command: "build",
+      mode: "staging",
+      server: {},
+      build: { outDir: "/dist/" },
+    });
     await plugin.buildStart();
     await plugin.writeBundle();
 
@@ -718,13 +812,20 @@ describe("writeBundle", () => {
         `;
       }
     });
-    vi.spyOn(glob, "glob").mockImplementation(() => Promise.resolve(["my-component.tsx"]));
+    vi.spyOn(glob, "glob").mockImplementation(() =>
+      Promise.resolve(["my-component.tsx"])
+    );
     vi.spyOn(path, "resolve").mockImplementation((_, file) => file);
     vi.spyOn(path, "dirname").mockImplementation(() => "/dist");
     vi.spyOn(fs, "writeFileSync");
 
     const plugin = ApplicationManifestPlugin();
-    plugin.configResolved({ command: "build", mode: "production", server: {}, build: { outDir: "/dist/" } });
+    plugin.configResolved({
+      command: "build",
+      mode: "production",
+      server: {},
+      build: { outDir: "/dist/" },
+    });
     await plugin.buildStart();
     await plugin.writeBundle();
 
@@ -744,16 +845,25 @@ describe("writeBundle", () => {
         `;
       }
     });
-    vi.spyOn(glob, "glob").mockImplementation(() => Promise.resolve(["my-component.tsx"]));
+    vi.spyOn(glob, "glob").mockImplementation(() =>
+      Promise.resolve(["my-component.tsx"])
+    );
     vi.spyOn(path, "resolve").mockImplementation((_, file) => file);
     vi.spyOn(path, "dirname").mockImplementation(() => "/dist");
     vi.spyOn(fs, "writeFileSync");
 
     const plugin = ApplicationManifestPlugin();
-    plugin.configResolved({ command: "build", mode: "staging", server: {}, build: { outDir: "/dist/" } });
+    plugin.configResolved({
+      command: "build",
+      mode: "staging",
+      server: {},
+      build: { outDir: "/dist/" },
+    });
     await plugin.buildStart();
 
-    await expect(async () => await plugin.writeBundle()).rejects.toThrowErrorMatchingInlineSnapshot(
+    await expect(
+      async () => await plugin.writeBundle()
+    ).rejects.toThrowErrorMatchingInlineSnapshot(
       `[Error: No entry point found for mode "staging". Entry points other than "development" and "production" must be defined in package.json file.]`
     );
   });
@@ -768,13 +878,20 @@ describe("writeBundle", () => {
         `;
       }
     });
-    vi.spyOn(glob, "glob").mockImplementation(() => Promise.resolve(["my-component.tsx"]));
+    vi.spyOn(glob, "glob").mockImplementation(() =>
+      Promise.resolve(["my-component.tsx"])
+    );
     vi.spyOn(path, "resolve").mockImplementation((_, file) => file);
     vi.spyOn(path, "dirname").mockImplementation(() => "/dist");
     vi.spyOn(fs, "writeFileSync");
 
     const plugin = ApplicationManifestPlugin();
-    plugin.configResolved({ command: "build", mode: "production", server: {}, build: { outDir: "/dist/" } });
+    plugin.configResolved({
+      command: "build",
+      mode: "production",
+      server: {},
+      build: { outDir: "/dist/" },
+    });
     await plugin.buildStart();
     await plugin.writeBundle();
 
@@ -797,7 +914,9 @@ describe("configureServer", () => {
         `;
       }
     });
-    vi.spyOn(glob, "glob").mockImplementation(() => Promise.resolve(["my-component.tsx"]));
+    vi.spyOn(glob, "glob").mockImplementation(() =>
+      Promise.resolve(["my-component.tsx"])
+    );
     vi.spyOn(path, "resolve").mockImplementation((_, file) => file);
     vi.spyOn(fs, "writeFileSync");
 
@@ -819,7 +938,11 @@ describe("configureServer", () => {
     server.watcher.init();
 
     const plugin = ApplicationManifestPlugin();
-    plugin.configResolved({ command: "serve", server: {}, build: { outDir: "/dist" } });
+    plugin.configResolved({
+      command: "serve",
+      server: {},
+      build: { outDir: "/dist" },
+    });
     await plugin.buildStart();
     await plugin.configureServer(server);
     await server.watcher.trigger("package.json");

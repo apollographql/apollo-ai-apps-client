@@ -28,5 +28,7 @@ export const ExtendedApolloProvider = ({
     }
   }, [setHasPreloaded]);
 
-  return hasPreloaded ? <ApolloProvider client={client}>{children}</ApolloProvider> : null;
+  return hasPreloaded ?
+      <ApolloProvider client={client}>{children}</ApolloProvider>
+    : null;
 };
