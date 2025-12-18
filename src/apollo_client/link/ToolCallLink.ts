@@ -17,11 +17,11 @@ export class ToolCallLink extends ApolloLink {
     const { query, variables } = selectHttpOptionsAndBody(
       operation,
       fallbackHttpConfig,
-      contextConfig,
+      contextConfig
     ).body;
 
     return from(window.openai.callTool("execute", { query, variables })).pipe(
-      map((result) => ({ data: result.structuredContent.data })),
+      map((result) => ({ data: result.structuredContent.data }))
     );
   }
 }
