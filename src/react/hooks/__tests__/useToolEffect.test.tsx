@@ -1,5 +1,5 @@
 import { expect, test, vi } from "vitest";
-import { useToolEffect } from "../useToolEffect";
+import { useToolEffect } from "../useToolEffect.js";
 import { renderHook } from "@testing-library/react";
 import { ToolUseProvider } from "../../context/ToolUseContext";
 

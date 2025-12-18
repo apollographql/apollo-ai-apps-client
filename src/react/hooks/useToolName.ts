@@ -1,4 +1,4 @@
-import { useOpenAiGlobal } from "./useOpenAiGlobal";
+import { useOpenAiGlobal } from "./useOpenAiGlobal.js";
 
 export const useToolName = (): string | undefined => {
   const toolResponseMetadata = useOpenAiGlobal("toolResponseMetadata");

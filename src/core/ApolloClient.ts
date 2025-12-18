@@ -4,9 +4,9 @@ import { DocumentTransform } from "@apollo/client";
 import { removeDirectivesFromDocument } from "@apollo/client/utilities/internal";
 import { parse } from "graphql";
 import { __DEV__ } from "@apollo/client/utilities/environment";
-import "../types/openai";
-import { ApplicationManifest } from "../types/application-manifest";
-import { ToolCallLink } from "../link/ToolCallLink";
+import "../types/openai.js";
+import { ApplicationManifest } from "../types/application-manifest.js";
+import { ToolCallLink } from "../link/ToolCallLink.js";
 
 // TODO: In the future if/when we support PQs again, do pqLink.concat(toolCallLink)
 // Commenting this out for now.

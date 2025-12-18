@@ -1,5 +1,6 @@
-import { expect, test, vi, describe, beforeEach, Mock } from "vitest";
-import { ApplicationManifestPlugin } from "../application_manifest_plugin";
+import type { Mock } from "vitest";
+import { expect, test, vi, describe, beforeEach } from "vitest";
+import { ApplicationManifestPlugin } from "../application_manifest_plugin.js";
 import fs from "fs";
 import * as glob from "glob";
 import path from "path";
