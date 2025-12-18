@@ -1,0 +1,9 @@
+{
+  "extends": "./tsconfig.base.json",
+  "include": ["./src/**/*.test.ts", "./src/**/*.test.tsx"],
+  "references": [{ "path": "./tsconfig.src.json" }],
+  "compilerOptions": {
+    "composite": true,
+    "types": ["node"]
+  }
+}

@@ -3,7 +3,6 @@
   "include": ["./src"],
   "exclude": ["./src/**/*.test.ts", "./src/**/*.test.tsx"],
   "compilerOptions": {
-    "noEmit": false,
-    "outDir": "./dist"
+    "composite": true
   }
 }
