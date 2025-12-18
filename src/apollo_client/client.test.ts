@@ -521,7 +521,7 @@ describe("custom links", () => {
     );
   });
 
-  test.only("enforces ToolCallLink as terminating link", async () => {
+  test("enforces ToolCallLink as terminating link", async () => {
     const manifest = createManifest();
     const expectedError = new Error(
       "The terminating link must be a `ToolCallLink`. If you are using a `split` link, ensure the `right` branch uses a `ToolCallLink` as the terminating link."
