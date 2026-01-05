@@ -16,16 +16,18 @@ import { ToolCallLink } from "../link/ToolCallLink";
 //   sha256: (queryString) => sha256(queryString),
 // });
 
-// This allows us to extend the options with the "manifest" option AND make link optional (it is normally required)
-type ApolloClientOptions = Omit<BaseApolloClient.Options, "link"> & {
-  link?: BaseApolloClient.Options["link"];
-  manifest: ApplicationManifest;
-};
+export declare namespace ApolloClient {
+  // This allows us to extend the options with the "manifest" option AND make link optional (it is normally required)
+  export interface Options extends Omit<BaseApolloClient.Options, "link"> {
+    link?: BaseApolloClient.Options["link"];
+    manifest: ApplicationManifest;
+  }
+}
 
 export class ApolloClient extends BaseApolloClient {
   manifest: ApplicationManifest;
 
-  constructor(options: ApolloClientOptions) {
+  constructor(options: ApolloClient.Options) {
     const link = options.link ?? new ToolCallLink();
 
     if (__DEV__) {
