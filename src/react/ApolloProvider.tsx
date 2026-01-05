@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { ApolloProvider } from "@apollo/client/react";
+import { ApolloProvider as BaseApolloProvider } from "@apollo/client/react";
 import { ApolloClient } from "../core/ApolloClient";
 import { SET_GLOBALS_EVENT_TYPE } from "../types/openai";
 
-export const ExtendedApolloProvider = ({
+export const ApolloProvider = ({
   children,
   client,
 }: React.PropsWithChildren<{ client: ApolloClient }>) => {
@@ -33,6 +33,6 @@ export const ExtendedApolloProvider = ({
   }, []);
 
   return hasPreloaded ?
-      <ApolloProvider client={client}>{children}</ApolloProvider>
+      <BaseApolloProvider client={client}>{children}</BaseApolloProvider>
     : null;
 };

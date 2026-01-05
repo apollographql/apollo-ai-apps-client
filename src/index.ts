@@ -13,5 +13,5 @@ export { useWidgetState } from "./react/hooks/useWidgetState";
 
 export * from "@apollo/client";
 export { ApolloClient } from "./core/ApolloClient";
-export { ExtendedApolloProvider as ApolloProvider } from "./react/ApolloProvider";
+export { ApolloProvider } from "./react/ApolloProvider";
 export { ToolCallLink } from "./link/ToolCallLink";
