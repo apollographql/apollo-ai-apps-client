@@ -1,7 +1,7 @@
 import { NextRenderOptions } from "@testing-library/react-render-stream";
 
 interface CustomMatchers<R = unknown> {
-  toRerender: (options?: NextRenderOptions) => R;
+  toRerender: (options?: NextRenderOptions) => Promise<R>;
 }
 
 declare module "vitest" {
