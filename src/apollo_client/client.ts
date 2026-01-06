@@ -53,7 +53,7 @@ export class ExtendedApolloClient extends ApolloClient {
       if (
         operation.prefetch &&
         operation.prefetchID &&
-        window.openai.toolOutput.prefetch?.[operation.prefetchID]
+        window.openai.toolOutput?.prefetch?.[operation.prefetchID]
       ) {
         this.writeQuery({
           query: parse(operation.body),
@@ -66,24 +66,26 @@ export class ExtendedApolloClient extends ApolloClient {
         operation.tools?.find(
           (tool) =>
             `${this.manifest.name}--${tool.name}` ===
-            window.openai.toolResponseMetadata.toolName
+            window.openai.toolResponseMetadata?.toolName
         )
       ) {
         // We need to include the variables that were used as part of the tool call so that we get a proper cache entry
         // However, we only want to include toolInput's that were graphql operation (ignore extraInputs)
         const variables = Object.keys(window.openai.toolInput).reduce(
           (obj, key) =>
-            operation.variables[key] ?
+            operation.variables?.[key] ?
               { ...obj, [key]: window.openai.toolInput[key] }
             : obj,
           {}
         );
 
-        this.writeQuery({
-          query: parse(operation.body),
-          data: window.openai.toolOutput.result.data,
-          variables,
-        });
+        if (window.openai.toolOutput) {
+          this.writeQuery({
+            query: parse(operation.body),
+            data: (window.openai.toolOutput.result as any).data,
+            variables,
+          });
+        }
       }
     });
   }
