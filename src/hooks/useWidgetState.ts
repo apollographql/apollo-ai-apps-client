@@ -14,6 +14,8 @@ export function useWidgetState<T extends UnknownObject>(
   defaultState?: T | (() => T | null) | null
 ): readonly [T | null, (state: SetStateAction<T | null>) => void] {
   const widgetStateFromWindow = useOpenAiGlobal("widgetState") as T;
+  const [previousWidgetStateFromWindow, setPreviousWidgetStateFromWindow] =
+    useState(widgetStateFromWindow);
 
   let [widgetState, _setWidgetState] = useState<T | null>(() => {
     if (widgetStateFromWindow != null) {
@@ -25,11 +27,9 @@ export function useWidgetState<T extends UnknownObject>(
       );
   });
 
-  if (
-    widgetStateFromWindow !== undefined &&
-    widgetStateFromWindow !== widgetState
-  ) {
+  if (previousWidgetStateFromWindow !== widgetStateFromWindow) {
     _setWidgetState((widgetState = widgetStateFromWindow));
+    setPreviousWidgetStateFromWindow(widgetStateFromWindow);
   }
 
   const setWidgetState = useCallback((state: SetStateAction<T | null>) => {
