@@ -1,8 +1,8 @@
 import { expect, test, vi } from "vitest";
-import { ExtendedApolloProvider } from "./provider";
+import { ApolloProvider } from "../ApolloProvider";
 import { render } from "@testing-library/react";
-import { ExtendedApolloClient } from "./client";
-import { SET_GLOBALS_EVENT_TYPE } from "../types/openai";
+import { ApolloClient } from "../../core/ApolloClient";
+import { SET_GLOBALS_EVENT_TYPE } from "../../types/openai";
 
 test("Should call prefetch data when window.open is immediately available", () => {
   vi.stubGlobal("openai", {
@@ -11,9 +11,9 @@ test("Should call prefetch data when window.open is immediately available", () =
 
   const client = {
     prefetchData: vi.fn(async () => {}),
-  } as unknown as ExtendedApolloClient;
+  } as unknown as ApolloClient;
 
-  render(<ExtendedApolloProvider client={client} />);
+  render(<ApolloProvider client={client} />);
 
   expect(client.prefetchData).toBeCalled();
 });
@@ -21,9 +21,9 @@ test("Should call prefetch data when window.open is immediately available", () =
 test("Should NOT call prefetch data when window.open is not immediately available", () => {
   const client = {
     prefetchData: vi.fn(async () => {}),
-  } as unknown as ExtendedApolloClient;
+  } as unknown as ApolloClient;
 
-  render(<ExtendedApolloProvider client={client} />);
+  render(<ApolloProvider client={client} />);
 
   expect(client.prefetchData).not.toBeCalled();
 });
@@ -31,9 +31,9 @@ test("Should NOT call prefetch data when window.open is not immediately availabl
 test("Should call prefetch data when window.open is not immediately available and event is sent", () => {
   const client = {
     prefetchData: vi.fn(async () => {}),
-  } as unknown as ExtendedApolloClient;
+  } as unknown as ApolloClient;
 
-  render(<ExtendedApolloProvider client={client} />);
+  render(<ApolloProvider client={client} />);
 
   window.dispatchEvent(new CustomEvent(SET_GLOBALS_EVENT_TYPE));
 

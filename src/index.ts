@@ -1,17 +1,38 @@
-export * from "./types/openai";
-export * from "./types/application-manifest";
-export * from "./hooks/useOpenAiGlobal";
-export * from "./hooks/useToolName";
-export * from "./hooks/useToolInput";
-export * from "./hooks/useSendFollowUpMessage";
-export * from "./hooks/useRequestDisplayMode";
-export * from "./hooks/useToolEffect";
-export { useOpenExternal } from "./hooks/useOpenExternal";
-export { useToolOutput } from "./hooks/useToolOutput";
-export { useToolResponseMetadata } from "./hooks/useToolResponseMetadata";
-export { useWidgetState } from "./hooks/useWidgetState";
+export type {
+  API,
+  CallTool,
+  DeviceType,
+  DisplayMode,
+  OpenAiGlobals,
+  SafeArea,
+  SafeAreaInsets,
+  Theme,
+  UserAgent,
+  UnknownObject,
+} from "./types/openai";
+export { SET_GLOBALS_EVENT_TYPE, SetGlobalsEvent } from "./types/openai";
+
+export type {
+  ApplicationManifest,
+  ManifestOperation,
+  ManifestTool,
+  ManifestExtraInput,
+  ManifestCsp,
+} from "./types/application-manifest";
+
+export { ToolUseProvider } from "./react/context/ToolUseContext";
+export { useOpenAiGlobal } from "./react/hooks/useOpenAiGlobal";
+export { useToolName } from "./react/hooks/useToolName";
+export { useToolInput } from "./react/hooks/useToolInput";
+export { useSendFollowUpMessage } from "./react/hooks/useSendFollowUpMessage";
+export { useRequestDisplayMode } from "./react/hooks/useRequestDisplayMode";
+export { useToolEffect } from "./react/hooks/useToolEffect";
+export { useOpenExternal } from "./react/hooks/useOpenExternal";
+export { useToolOutput } from "./react/hooks/useToolOutput";
+export { useToolResponseMetadata } from "./react/hooks/useToolResponseMetadata";
+export { useWidgetState } from "./react/hooks/useWidgetState";
 
 export * from "@apollo/client";
-export { ExtendedApolloClient as ApolloClient } from "./apollo_client/client";
-export { ExtendedApolloProvider as ApolloProvider } from "./apollo_client/provider";
-export { ToolCallLink } from "./apollo_client/link/ToolCallLink";
+export { ApolloClient } from "./core/ApolloClient";
+export { ApolloProvider } from "./react/ApolloProvider";
+export { ToolCallLink } from "./link/ToolCallLink";

@@ -1,37 +1,14 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { useToolName } from "./useToolName";
 import { useToolInput } from "./useToolInput";
-
-type ToolUseState = {
-  appName: string;
-  hasNavigated: boolean;
-  setHasNavigated: (v: boolean) => void;
-};
-
-const ToolUseContext = React.createContext<ToolUseState | null>(null);
-
-export function ToolUseProvider({
-  children,
-  appName,
-}: {
-  children: any;
-  appName: string;
-}) {
-  const [hasNavigated, setHasNavigated] = useState(false);
-
-  return (
-    <ToolUseContext.Provider value={{ hasNavigated, setHasNavigated, appName }}>
-      {children}
-    </ToolUseContext.Provider>
-  );
-}
+import { useToolUseState } from "../context/ToolUseContext";
 
 export const useToolEffect = (
   toolName: string | string[],
   effect: (toolInput: any) => void,
   deps: React.DependencyList = []
 ) => {
-  const ctx = React.useContext(ToolUseContext);
+  const ctx = useToolUseState();
   const fullToolName = useToolName();
   const toolInput = useToolInput();
   if (!ctx)

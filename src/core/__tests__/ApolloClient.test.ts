@@ -1,10 +1,9 @@
 import { expect, test, describe, vi } from "vitest";
-import { ExtendedApolloClient } from "./client";
-import { ApplicationManifest } from "../types/application-manifest";
+import { ApolloClient } from "../ApolloClient";
+import { ApplicationManifest } from "../../types/application-manifest";
 import { parse } from "graphql";
 import { ApolloLink, HttpLink, InMemoryCache } from "@apollo/client";
-import { ApolloClient } from "..";
-import { ToolCallLink } from "./link/ToolCallLink";
+import { ToolCallLink } from "../../link/ToolCallLink";
 
 describe("Client Basics", () => {
   test("Should execute tool call when client.query is called", async () => {
@@ -59,7 +58,7 @@ describe("Client Basics", () => {
       resource: "index.html",
     };
 
-    const client = new ExtendedApolloClient({
+    const client = new ApolloClient({
       cache: new InMemoryCache(),
       manifest: manifest as ApplicationManifest,
     });
@@ -148,7 +147,7 @@ describe("prefetchData", () => {
       resource: "index.html",
     };
 
-    const client = new ExtendedApolloClient({
+    const client = new ApolloClient({
       cache: new InMemoryCache(),
       manifest: manifest as ApplicationManifest,
     });
@@ -230,7 +229,7 @@ describe("prefetchData", () => {
       resource: "index.html",
     };
 
-    const client = new ExtendedApolloClient({
+    const client = new ApolloClient({
       cache: new InMemoryCache(),
       manifest: manifest as ApplicationManifest,
     });
@@ -340,7 +339,7 @@ describe("prefetchData", () => {
       resource: "index.html",
     };
 
-    const client = new ExtendedApolloClient({
+    const client = new ApolloClient({
       cache: new InMemoryCache(),
       manifest: manifest as ApplicationManifest,
     });
@@ -431,7 +430,7 @@ describe("prefetchData", () => {
       resource: "index.html",
     };
 
-    const client = new ExtendedApolloClient({
+    const client = new ApolloClient({
       cache: new InMemoryCache(),
       manifest: manifest as ApplicationManifest,
     });
