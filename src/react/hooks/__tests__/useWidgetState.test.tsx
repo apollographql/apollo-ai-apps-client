@@ -3,8 +3,8 @@ import {
   disableActEnvironment,
   renderHookToSnapshotStream,
 } from "@testing-library/react-render-stream";
-import { useWidgetState } from "../useWidgetState";
-import { stubOpenAiGlobals } from "../../../testing/internal";
+import { useWidgetState } from "../useWidgetState.js";
+import { stubOpenAiGlobals } from "../../../testing/internal/index.js";
 
 afterEach(() => {
   vi.unstubAllGlobals();
