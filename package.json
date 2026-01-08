@@ -24,7 +24,8 @@
     "test:watch": "vitest --coverage",
     "changeset": "knope document-change",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "typecheck": "tsc -b --emitDeclarationOnly"
   },
   "keywords": [],
   "author": "",
