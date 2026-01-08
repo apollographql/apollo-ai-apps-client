@@ -1,7 +1,7 @@
 import { expect, test, vi } from "vitest";
 import { useToolEffect } from "../useToolEffect.js";
 import { renderHook } from "@testing-library/react";
-import { ToolUseProvider } from "../../context/ToolUseContext";
+import { ToolUseProvider } from "../../context/ToolUseContext.js";
 
 test("Should trigger effect when tool name matches toolResponseMetadata", async () => {
   vi.stubGlobal("openai", {

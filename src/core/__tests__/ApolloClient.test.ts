@@ -3,7 +3,7 @@ import { ApolloClient } from "../ApolloClient.js";
 import type { ApplicationManifest } from "../../types/application-manifest.js";
 import { parse } from "graphql";
 import { ApolloLink, HttpLink, InMemoryCache } from "@apollo/client";
-import { ToolCallLink } from "../../link/ToolCallLink";
+import { ToolCallLink } from "../../link/ToolCallLink.js";
 
 describe("Client Basics", () => {
   test("Should execute tool call when client.query is called", async () => {
