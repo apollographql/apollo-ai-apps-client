@@ -440,7 +440,7 @@ describe("buildStart", () => {
     });
     await plugin.buildStart();
 
-    let [file, content] = (fs.writeFileSync as unknown as Mock).mock.calls[0];
+    let [, content] = (fs.writeFileSync as unknown as Mock).mock.calls[0];
     let contentObj = JSON.parse(content);
 
     expect(contentObj.resource).toBe("http://staging.awesome.com");
@@ -470,7 +470,7 @@ describe("buildStart", () => {
     });
     await plugin.buildStart();
 
-    let [file, content] = (fs.writeFileSync as unknown as Mock).mock.calls[0];
+    let [, content] = (fs.writeFileSync as unknown as Mock).mock.calls[0];
     let contentObj = JSON.parse(content);
 
     expect(contentObj.resource).toBe("https://localhost:5678");
@@ -500,7 +500,7 @@ describe("buildStart", () => {
     });
     await plugin.buildStart();
 
-    let [file, content] = (fs.writeFileSync as unknown as Mock).mock.calls[0];
+    let [, content] = (fs.writeFileSync as unknown as Mock).mock.calls[0];
     let contentObj = JSON.parse(content);
 
     expect(contentObj.resource).toBe("http://awesome.com:5678");
@@ -818,7 +818,7 @@ describe("writeBundle", () => {
     await plugin.buildStart();
     await plugin.writeBundle();
 
-    let [file, content] = (fs.writeFileSync as unknown as Mock).mock.calls[0];
+    let [, content] = (fs.writeFileSync as unknown as Mock).mock.calls[0];
     let contentObj = JSON.parse(content);
 
     expect(contentObj.resource).toBe("http://staging.awesome.com");
@@ -851,7 +851,7 @@ describe("writeBundle", () => {
     await plugin.buildStart();
     await plugin.writeBundle();
 
-    let [file, content] = (fs.writeFileSync as unknown as Mock).mock.calls[0];
+    let [, content] = (fs.writeFileSync as unknown as Mock).mock.calls[0];
     let contentObj = JSON.parse(content);
 
     expect(contentObj.resource).toBe("index.html");
