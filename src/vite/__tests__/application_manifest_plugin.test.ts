@@ -32,12 +32,7 @@ vi.mock(import("path"), async (importOriginal) => {
   };
 });
 
-vi.mock(import("glob"), async (importOriginal) => {
-  const actual = await importOriginal();
-  return {
-    glob: vi.fn(),
-  };
-});
+vi.mock(import("glob"));
 
 beforeEach(() => {
   vi.clearAllMocks();
