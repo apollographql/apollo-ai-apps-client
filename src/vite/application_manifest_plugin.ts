@@ -142,7 +142,7 @@ export const ApplicationManifestPlugin = () => {
 
           if (name.indexOf(" ") > -1) {
             throw new Error(
-              `Tool with name "${name}" contains spaces which is not allowed. Please replace the spaces with underscores.`
+              `Tool with name "${name}" contains spaces which is not allowed.`
             );
           }
 
