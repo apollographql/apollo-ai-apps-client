@@ -973,3 +973,21 @@ describe("configureServer", () => {
     expect(fs.writeFileSync).toBeCalledTimes(6);
   });
 });
+
+type FilePath = string;
+
+function mockReadFile(mocks: Record<FilePath, string | (() => string)>) {
+  vi.spyOn(fs, "readFileSync").mockImplementation((path) => {
+    const mock = mocks[path.toString()];
+
+    if (!mock) {
+      throw new Error(`No matched mock for path '${path}'`);
+    }
+
+    if (typeof mock === "function") {
+      return mock();
+    }
+
+    return mock;
+  });
+}
