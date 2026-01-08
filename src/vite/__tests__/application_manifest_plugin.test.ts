@@ -584,7 +584,7 @@ describe("buildStart", () => {
     await expect(
       async () => await plugin.buildStart()
     ).rejects.toThrowErrorMatchingInlineSnapshot(
-      `[Error: Tool with name "hello world" contains spaces which is not allowed. Please replace the spaces with underscores.]`
+      `[Error: Tool with name "hello world" contains spaces which is not allowed.]`
     );
   });
 
