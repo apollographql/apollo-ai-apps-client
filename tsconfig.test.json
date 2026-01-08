@@ -6,11 +6,15 @@
     "./src/**/*.test.tsx",
     "./src/testing/internal/"
   ],
-  "references": [{ "path": "./tsconfig.src.json" }],
+  "references": [
+    { "path": "./tsconfig.src.json" },
+    { "path": "./tsconfig.vite.json" }
+  ],
   "compilerOptions": {
     "rootDir": "src",
     "outDir": "dist",
     "composite": true,
+    "lib": ["dom", "esnext"],
     "types": ["node"]
   }
 }
