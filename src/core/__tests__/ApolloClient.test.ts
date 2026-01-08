@@ -56,11 +56,12 @@ describe("Client Basics", () => {
         },
       ],
       resource: "index.html",
-    };
+      csp: { connectDomains: [], resourceDomains: [] },
+    } satisfies ApplicationManifest;
 
     const client = new ApolloClient({
       cache: new InMemoryCache(),
-      manifest: manifest as ApplicationManifest,
+      manifest,
     });
 
     const variables = { id: "1" };
@@ -145,11 +146,12 @@ describe("prefetchData", () => {
         },
       ],
       resource: "index.html",
-    };
+      csp: { connectDomains: [], resourceDomains: [] },
+    } satisfies ApplicationManifest;
 
     const client = new ApolloClient({
       cache: new InMemoryCache(),
-      manifest: manifest as ApplicationManifest,
+      manifest,
     });
     await client.prefetchData();
 
@@ -428,11 +430,12 @@ describe("prefetchData", () => {
         },
       ],
       resource: "index.html",
-    };
+      csp: { connectDomains: [], resourceDomains: [] },
+    } satisfies ApplicationManifest;
 
     const client = new ApolloClient({
       cache: new InMemoryCache(),
-      manifest: manifest as ApplicationManifest,
+      manifest,
     });
     await client.prefetchData();
 
