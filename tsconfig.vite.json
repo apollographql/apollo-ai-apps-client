@@ -8,6 +8,8 @@
     "./src/testing/internal/"
   ],
   "compilerOptions": {
+    "rootDir": "src",
+    "outDir": "dist",
     "lib": ["esnext"],
     "composite": true
   }
