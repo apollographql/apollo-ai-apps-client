@@ -18,7 +18,9 @@
   "scripts": {
     "dev": "node ./scripts/dev.mjs",
     "prebuild": "npm run clean",
-    "build": "tsc --project tsconfig.build.json",
+    "build": "npm run build:src && npm run build:vite",
+    "build:src": "tsc --project tsconfig.src.build.json",
+    "build:vite": "tsc --project tsconfig.vite.build.json",
     "clean": "rimraf dist",
     "test": "vitest run --coverage",
     "test:watch": "vitest --coverage",

@@ -1,17 +1,12 @@
 {
   "$schema": "https://json.schemastore.org/tsconfig",
   "extends": "./tsconfig.base.json",
-  "include": ["./src"],
-  "exclude": [
-    "./src/**/*.test.ts",
-    "./src/**/*.test.tsx",
-    "./src/testing/internal/"
-  ],
+  "include": ["./src/vite/"],
+  "exclude": ["**/*.test.ts", "**/*.test.tsx"],
   "compilerOptions": {
     "noEmit": false,
     "rootDir": "./src",
     "outDir": "./dist",
-    "lib": ["DOM"],
     "inlineSources": true,
     "sourceMap": true,
     "declaration": true,
