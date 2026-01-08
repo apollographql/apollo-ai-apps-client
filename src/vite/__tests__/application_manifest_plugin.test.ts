@@ -874,16 +874,18 @@ describe("configureServer", () => {
     vi.spyOn(path, "resolve").mockImplementation((_, file) => file);
     vi.spyOn(fs, "writeFileSync");
 
+    let _callbacks: Function[] = [];
+
     const server = {
       watcher: {
         init: () => {
-          this._callbacks = [];
+          _callbacks = [];
         },
         on: (_event: string, callback: Function) => {
-          this._callbacks.push(callback);
+          _callbacks.push(callback);
         },
-        trigger: async (file) => {
-          for (const callback of this._callbacks) {
+        trigger: async (file: string) => {
+          for (const callback of _callbacks) {
             await callback(file);
           }
         },
@@ -898,7 +900,7 @@ describe("configureServer", () => {
       build: { outDir: "/dist" },
     });
     await plugin.buildStart();
-    await plugin.configureServer(server);
+    plugin.configureServer(server);
     await server.watcher.trigger("package.json");
     await server.watcher.trigger("my-component.tsx");
 
