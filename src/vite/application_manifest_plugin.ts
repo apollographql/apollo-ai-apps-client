@@ -115,6 +115,17 @@ function getDirectiveArgument(
   return argument;
 }
 
+function setMetaProperty<
+  K extends keyof NonNullable<ToolDirectiveOptions["_meta"]>,
+>(
+  toolOptions: ToolDirectiveOptions,
+  key: K,
+  value: NonNullable<ToolDirectiveOptions["_meta"]>[K]
+) {
+  toolOptions._meta ??= {};
+  toolOptions._meta[key] = value;
+}
+
 function getTypeName(type: TypeNode): string {
   let t = type;
   while (t.kind === "NonNullType" || t.kind === "ListType") {
@@ -203,9 +214,11 @@ export const ApplicationManifestPlugin = () => {
                 `Expected argument 'openai.widgetPrefersBorder' to be of type 'boolean' but found '${typeof openai.widgetPrefersBorder}' instead.`
               );
 
-              toolOptions._meta ??= {};
-              toolOptions._meta["openai/widgetPrefersBorder"] =
-                openai.widgetPrefersBorder;
+              setMetaProperty(
+                toolOptions,
+                "openai/widgetPrefersBorder",
+                openai.widgetPrefersBorder
+              );
             }
 
             if ("widgetDescription" in openai) {
@@ -214,9 +227,11 @@ export const ApplicationManifestPlugin = () => {
                 `Expected argument 'openai.widgetDescription' to be of type 'string' but found '${typeof openai.widgetDescription}' instead.`
               );
 
-              toolOptions._meta ??= {};
-              toolOptions._meta["openai/widgetDescription"] =
-                openai.widgetDescription;
+              setMetaProperty(
+                toolOptions,
+                "openai/widgetDescription",
+                openai.widgetDescription
+              );
             }
 
             if ("widgetDomain" in openai) {
@@ -225,8 +240,11 @@ export const ApplicationManifestPlugin = () => {
                 `Expected argument 'openai.widgetDomain' to be of type 'string' but found '${typeof openai.widgetDomain}' instead.`
               );
 
-              toolOptions._meta ??= {};
-              toolOptions._meta["openai/widgetDomain"] = openai.widgetDomain;
+              setMetaProperty(
+                toolOptions,
+                "openai/widgetDomain",
+                openai.widgetDomain
+              );
             }
           }
 
