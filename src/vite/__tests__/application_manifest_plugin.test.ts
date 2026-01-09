@@ -48,7 +48,7 @@ const MY_QUERY = gql\`query HelloWorldQuery($name: string!) @tool(name: "hello-w
   type: "boolean",
   description: "Should we do stuff?"
 }],
-openai: { widgetPrefersBorder: true, widgetDescription: "Test", widgetDomain: "https://example.com" }) { helloWorld(name: $name) }\`;
+widgetSettings: { prefersBorder: true, description: "Test", domain: "https://example.com" }) { helloWorld(name: $name) }\`;
       `,
     });
 
@@ -618,11 +618,11 @@ openai: { widgetPrefersBorder: true, widgetDescription: "Test", widgetDomain: "h
     );
   });
 
-  test("Should error when openai.widgetPrefersBorder is not a boolean", async () => {
+  test("Should error when widgetSettings.prefersBorder is not a boolean", async () => {
     mockReadFile({
       "package.json": JSON.stringify({}),
       "my-component.tsx": `
-        const MY_QUERY = gql\`query HelloWorldQuery @tool(name: "test", description: "Test", openai: { widgetPrefersBorder: "test" }) { helloWorld }\`;
+        const MY_QUERY = gql\`query HelloWorldQuery @tool(name: "test", description: "Test", widgetSettings: { prefersBorder: "test" }) { helloWorld }\`;
       `,
     });
     vi.spyOn(glob, "glob").mockImplementation(() =>
@@ -637,15 +637,15 @@ openai: { widgetPrefersBorder: true, widgetDescription: "Test", widgetDomain: "h
     await expect(
       async () => await plugin.buildStart()
     ).rejects.toThrowErrorMatchingInlineSnapshot(
-      `[Error: Expected argument 'openai.widgetPrefersBorder' to be of type 'boolean' but found 'string' instead.]`
+      `[Error: Expected argument 'widgetSettings.prefersBorder' to be of type 'boolean' but found 'undefined' instead.]`
     );
   });
 
-  test("Should error when openai.widgetDescription is not a string", async () => {
+  test("Should error when widgetSettings.description is not a string", async () => {
     mockReadFile({
       "package.json": JSON.stringify({}),
       "my-component.tsx": `
-        const MY_QUERY = gql\`query HelloWorldQuery @tool(name: "test", description: "Test", openai: { widgetDescription: true }) { helloWorld }\`;
+        const MY_QUERY = gql\`query HelloWorldQuery @tool(name: "test", description: "Test", widgetSettings: { description: true }) { helloWorld }\`;
       `,
     });
     vi.spyOn(glob, "glob").mockImplementation(() =>
@@ -660,15 +660,15 @@ openai: { widgetPrefersBorder: true, widgetDescription: "Test", widgetDomain: "h
     await expect(
       async () => await plugin.buildStart()
     ).rejects.toThrowErrorMatchingInlineSnapshot(
-      `[Error: Expected argument 'openai.widgetDescription' to be of type 'string' but found 'boolean' instead.]`
+      `[Error: Expected argument 'widgetSettings.description' to be of type 'string' but found 'undefined' instead.]`
     );
   });
 
-  test("Should error when openai.widgetDomain is not a string", async () => {
+  test("Should error when widgetSettings.domain is not a string", async () => {
     mockReadFile({
       "package.json": JSON.stringify({}),
       "my-component.tsx": `
-        const MY_QUERY = gql\`query HelloWorldQuery @tool(name: "test", description: "Test", openai: { widgetDomain: true }) { helloWorld }\`;
+        const MY_QUERY = gql\`query HelloWorldQuery @tool(name: "test", description: "Test", widgetSettings: { domain: true }) { helloWorld }\`;
       `,
     });
     vi.spyOn(glob, "glob").mockImplementation(() =>
@@ -683,15 +683,15 @@ openai: { widgetPrefersBorder: true, widgetDescription: "Test", widgetDomain: "h
     await expect(
       async () => await plugin.buildStart()
     ).rejects.toThrowErrorMatchingInlineSnapshot(
-      `[Error: Expected argument 'openai.widgetDomain' to be of type 'string' but found 'boolean' instead.]`
+      `[Error: Expected argument 'widgetSettings.domain' to be of type 'string' but found 'undefined' instead.]`
     );
   });
 
-  test("Should allow empty openai value", async () => {
+  test("Should allow empty widgetSettings value", async () => {
     mockReadFile({
       "package.json": JSON.stringify({}),
       "my-component.tsx": `
-        const MY_QUERY = gql\`query HelloWorldQuery @tool(name: "test", description: "Test", openai: {}) { helloWorld }\`;
+        const MY_QUERY = gql\`query HelloWorldQuery @tool(name: "test", description: "Test", widgetSettings: {}) { helloWorld }\`;
       `,
     });
     vi.spyOn(glob, "glob").mockImplementation(() =>
