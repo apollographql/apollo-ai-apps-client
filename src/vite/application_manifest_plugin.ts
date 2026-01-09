@@ -74,11 +74,10 @@ function getArgumentValue(
 function getArgumentValue(argument: ArgumentNode, expectedType: Kind) {
   const argumentType = argument.value.kind;
 
-  if (argumentType !== expectedType) {
-    throw new Error(
-      `Expected argument '${argument.name.value}' to be of type '${expectedType}' but found '${argumentType}' instead.`
-    );
-  }
+  invariant(
+    argumentType === expectedType,
+    `Expected argument '${argument.name.value}' to be of type '${expectedType}' but found '${argumentType}' instead.`
+  );
 
   return getRawValue(argument.value);
 }
@@ -108,9 +107,10 @@ function getDirectiveArgument(
     (directiveArgument) => directiveArgument.name.value === argumentName
   );
 
-  if (required && !argument) {
-    throw new Error(`'${argumentName}' argument must be supplied for @tool`);
-  }
+  invariant(
+    argument || !required,
+    `'${argumentName}' argument must be supplied for @tool`
+  );
 
   return argument;
 }
@@ -140,13 +140,12 @@ export const ApplicationManifestPlugin = () => {
         (d) => d.kind === "OperationDefinition"
       );
 
-      if (!definition) {
-        // Use `operation.query` so that the error reflects the end-user defined
-        // document, not our sorted one
-        throw new Error(
-          `Document does not contain an operation:\n${print(operation.query)}`
-        );
-      }
+      // Use `operation.query` so that the error reflects the end-user defined
+      // document, not our sorted one
+      invariant(
+        definition,
+        `Document does not contain an operation:\n${print(operation.query)}`
+      );
 
       const { directives, operation: type } = definition;
 
@@ -171,11 +170,10 @@ export const ApplicationManifestPlugin = () => {
             Kind.STRING
           );
 
-          if (name.indexOf(" ") > -1) {
-            throw new Error(
-              `Tool with name "${name}" contains spaces which is not allowed.`
-            );
-          }
+          invariant(
+            name.indexOf(" ") === -1,
+            `Tool with name "${name}" contains spaces which is not allowed.`
+          );
 
           const description = getArgumentValue(
             getDirectiveArgument("description", directive, { required: true }),
@@ -273,11 +271,11 @@ export const ApplicationManifestPlugin = () => {
     const operations = Array.from(cache.values()).flatMap(
       (entry) => entry.operations
     );
-    if (operations.filter((o) => o.prefetch).length > 1) {
-      throw new Error(
-        "Found multiple operations marked as `@prefetch`. You can only mark 1 operation with `@prefetch`."
-      );
-    }
+
+    invariant(
+      operations.filter((o) => o.prefetch).length <= 1,
+      "Found multiple operations marked as `@prefetch`. You can only mark 1 operation with `@prefetch`."
+    );
 
     let resource = "";
     if (config.command === "serve") {
@@ -424,7 +422,7 @@ function removeClientDirective(doc: DocumentNode) {
   )!;
 }
 
-function invariant(condition: boolean, message: string): asserts condition {
+function invariant(condition: any, message: string): asserts condition {
   if (!condition) {
     throw new Error(message);
   }
