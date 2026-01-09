@@ -18,17 +18,11 @@ import { ApolloClient, ApolloLink, InMemoryCache } from "@apollo/client";
 import { removeDirectivesFromDocument } from "@apollo/client/utilities/internal";
 import Observable from "rxjs";
 import path from "path";
-
-interface ToolDirectiveOptions {
-  name: string;
-  description: string;
-  extraInputs: unknown[] | undefined;
-  _meta?: {
-    "openai/widgetDescription"?: string;
-    "openai/widgetDomain"?: string;
-    "openai/widgetPrefersBorder"?: boolean;
-  };
-}
+import type {
+  ManifestExtraInput,
+  ManifestTool,
+  ManifestWidgetSettings,
+} from "../types/application-manifest.js";
 
 const root = process.cwd();
 
@@ -115,15 +109,13 @@ function getDirectiveArgument(
   return argument;
 }
 
-function setMetaProperty<
-  K extends keyof NonNullable<ToolDirectiveOptions["_meta"]>,
->(
-  toolOptions: ToolDirectiveOptions,
+function setMetaProperty<K extends keyof ManifestWidgetSettings>(
+  toolOptions: ManifestTool,
   key: K,
-  value: NonNullable<ToolDirectiveOptions["_meta"]>[K]
+  value: ManifestWidgetSettings[K]
 ) {
-  toolOptions._meta ??= {};
-  toolOptions._meta[key] = value;
+  toolOptions.widgetSettings ??= {};
+  toolOptions.widgetSettings[key] = value;
 }
 
 function getTypeName(type: TypeNode): string {
@@ -196,14 +188,19 @@ export const ApplicationManifestPlugin = () => {
             directive
           );
 
-          const toolOptions: ToolDirectiveOptions = {
+          const openaiNode = getDirectiveArgument("openai", directive);
+
+          const toolOptions: ManifestTool = {
             name,
             description,
-            extraInputs:
-              extraInputsNode && getArgumentValue(extraInputsNode, Kind.LIST),
           };
 
-          const openaiNode = getDirectiveArgument("openai", directive);
+          if (extraInputsNode) {
+            toolOptions.extraInputs = getArgumentValue(
+              extraInputsNode,
+              Kind.LIST
+            ) as ManifestExtraInput[];
+          }
 
           if (openaiNode) {
             const openai = getArgumentValue(openaiNode, Kind.OBJECT);
@@ -216,7 +213,7 @@ export const ApplicationManifestPlugin = () => {
 
               setMetaProperty(
                 toolOptions,
-                "openai/widgetPrefersBorder",
+                "prefersBorder",
                 openai.widgetPrefersBorder
               );
             }
@@ -229,7 +226,7 @@ export const ApplicationManifestPlugin = () => {
 
               setMetaProperty(
                 toolOptions,
-                "openai/widgetDescription",
+                "description",
                 openai.widgetDescription
               );
             }
@@ -240,11 +237,7 @@ export const ApplicationManifestPlugin = () => {
                 `Expected argument 'openai.widgetDomain' to be of type 'string' but found '${typeof openai.widgetDomain}' instead.`
               );
 
-              setMetaProperty(
-                toolOptions,
-                "openai/widgetDomain",
-                openai.widgetDomain
-              );
+              setMetaProperty(toolOptions, "domain", openai.widgetDomain);
             }
           }
 

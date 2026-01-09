@@ -90,11 +90,6 @@ openai: { widgetPrefersBorder: true, widgetDescription: "Test", widgetDomain: "h
             "prefetch": false,
             "tools": [
               {
-                "_meta": {
-                  "openai/widgetDescription": "Test",
-                  "openai/widgetDomain": "https://example.com",
-                  "openai/widgetPrefersBorder": true,
-                },
                 "description": "This is an awesome tool!",
                 "extraInputs": [
                   {
@@ -104,6 +99,11 @@ openai: { widgetPrefersBorder: true, widgetDescription: "Test", widgetDomain: "h
                   },
                 ],
                 "name": "hello-world",
+                "widgetSettings": {
+                  "description": "Test",
+                  "domain": "https://example.com",
+                  "prefersBorder": true,
+                },
               },
             ],
             "type": "query",

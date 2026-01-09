@@ -24,6 +24,13 @@ export type ManifestTool = {
   name: string;
   description: string;
   extraInputs?: ManifestExtraInput[];
+  widgetSettings?: ManifestWidgetSettings;
+};
+
+export type ManifestWidgetSettings = {
+  description?: string;
+  domain?: string;
+  prefersBorder?: boolean;
 };
 
 export type ManifestExtraInput = {
