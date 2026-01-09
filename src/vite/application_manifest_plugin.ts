@@ -174,7 +174,7 @@ export const ApplicationManifestPlugin = () => {
 
     const fileHash = createHash("md5").update(code).digest("hex");
     if (cache.get("file")?.hash === fileHash) return;
-    const sources = await gqlPluckFromCodeStringSync(file, code, {
+    const sources = gqlPluckFromCodeStringSync(file, code, {
       modules: [
         { name: "graphql-tag", identifier: "gql" },
         { name: "@apollo/client", identifier: "gql" },
