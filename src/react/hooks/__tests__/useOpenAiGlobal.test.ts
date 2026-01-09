@@ -1,7 +1,7 @@
 import { expect, test, vi } from "vitest";
-import { useOpenAiGlobal } from "../useOpenAiGlobal";
+import { useOpenAiGlobal } from "../useOpenAiGlobal.js";
 import { renderHook, act } from "@testing-library/react";
-import { SET_GLOBALS_EVENT_TYPE } from "../../../types/openai";
+import { SET_GLOBALS_EVENT_TYPE } from "../../../types/openai.js";
 
 test("Should update value when globals are updated and event it triggered", async () => {
   vi.stubGlobal("openai", {
@@ -9,7 +9,7 @@ test("Should update value when globals are updated and event it triggered", asyn
   });
 
   const { result } = renderHook(() => useOpenAiGlobal("toolResponseMetadata"));
-  const beforeValue = result.current.toolName;
+  const beforeValue = result.current?.toolName;
 
   act(() => {
     vi.stubGlobal("openai", {
@@ -24,7 +24,7 @@ test("Should update value when globals are updated and event it triggered", asyn
     );
   });
 
-  const afterValue = result.current.toolName;
+  const afterValue = result.current?.toolName;
 
   expect(beforeValue).toBe("my-tool");
   expect(afterValue).toBe("my-other-tool");
@@ -36,7 +36,7 @@ test("Should not update value when event key does not match the provided key", a
   });
 
   const { result } = renderHook(() => useOpenAiGlobal("toolResponseMetadata"));
-  const beforeValue = result.current.toolName;
+  const beforeValue = result.current?.toolName;
 
   act(() => {
     vi.stubGlobal("openai", {
@@ -49,7 +49,7 @@ test("Should not update value when event key does not match the provided key", a
     );
   });
 
-  const afterValue = result.current.toolName;
+  const afterValue = result.current?.toolName;
 
   expect(beforeValue).toBe("my-tool");
   expect(afterValue).toBe("my-tool");

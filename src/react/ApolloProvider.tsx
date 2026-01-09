@@ -1,7 +1,8 @@
-import React, { ReactNode, useEffect, useState } from "react";
+import type { ReactNode } from "react";
+import { useEffect, useState } from "react";
 import { ApolloProvider as BaseApolloProvider } from "@apollo/client/react";
-import { ApolloClient } from "../core/ApolloClient";
-import { SET_GLOBALS_EVENT_TYPE } from "../types/openai";
+import type { ApolloClient } from "../core/ApolloClient.js";
+import { SET_GLOBALS_EVENT_TYPE } from "../types/openai.js";
 
 export declare namespace ApolloProvider {
   export interface Props {

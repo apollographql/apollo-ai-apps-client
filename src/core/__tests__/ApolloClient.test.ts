@@ -1,9 +1,9 @@
 import { expect, test, describe, vi } from "vitest";
-import { ApolloClient } from "../ApolloClient";
-import { ApplicationManifest } from "../../types/application-manifest";
+import { ApolloClient } from "../ApolloClient.js";
+import type { ApplicationManifest } from "../../types/application-manifest.js";
 import { parse } from "graphql";
 import { ApolloLink, HttpLink, InMemoryCache } from "@apollo/client";
-import { ToolCallLink } from "../../link/ToolCallLink";
+import { ToolCallLink } from "../../link/ToolCallLink.js";
 
 describe("Client Basics", () => {
   test("Should execute tool call when client.query is called", async () => {
@@ -56,11 +56,12 @@ describe("Client Basics", () => {
         },
       ],
       resource: "index.html",
-    };
+      csp: { connectDomains: [], resourceDomains: [] },
+    } satisfies ApplicationManifest;
 
     const client = new ApolloClient({
       cache: new InMemoryCache(),
-      manifest: manifest as ApplicationManifest,
+      manifest,
     });
 
     const variables = { id: "1" };
@@ -145,11 +146,12 @@ describe("prefetchData", () => {
         },
       ],
       resource: "index.html",
-    };
+      csp: { connectDomains: [], resourceDomains: [] },
+    } satisfies ApplicationManifest;
 
     const client = new ApolloClient({
       cache: new InMemoryCache(),
-      manifest: manifest as ApplicationManifest,
+      manifest,
     });
     await client.prefetchData();
 
@@ -428,11 +430,12 @@ describe("prefetchData", () => {
         },
       ],
       resource: "index.html",
-    };
+      csp: { connectDomains: [], resourceDomains: [] },
+    } satisfies ApplicationManifest;
 
     const client = new ApolloClient({
       cache: new InMemoryCache(),
-      manifest: manifest as ApplicationManifest,
+      manifest,
     });
     await client.prefetchData();
 

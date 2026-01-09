@@ -2,9 +2,9 @@ import { afterEach, expect, test, vi } from "vitest";
 import {
   dispatchStateChange,
   stubOpenAiGlobals,
-} from "../../../testing/internal";
+} from "../../../testing/internal/index.js";
 import { renderHookToSnapshotStream } from "@testing-library/react-render-stream";
-import { useToolOutput } from "../useToolOutput";
+import { useToolOutput } from "../useToolOutput.js";
 
 afterEach(() => {
   vi.unstubAllGlobals();

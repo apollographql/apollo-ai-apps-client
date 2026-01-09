@@ -1,5 +1,6 @@
-import { expect, test, vi, describe, beforeEach, Mock } from "vitest";
-import { ApplicationManifestPlugin } from "../application_manifest_plugin";
+import type { Mock } from "vitest";
+import { expect, test, vi, describe, beforeEach } from "vitest";
+import { ApplicationManifestPlugin } from "../application_manifest_plugin.js";
 import fs from "fs";
 import * as glob from "glob";
 import path from "path";
@@ -31,12 +32,7 @@ vi.mock(import("path"), async (importOriginal) => {
   };
 });
 
-vi.mock(import("glob"), async (importOriginal) => {
-  const actual = await importOriginal();
-  return {
-    glob: vi.fn(),
-  };
-});
+vi.mock(import("glob"));
 
 beforeEach(() => {
   vi.clearAllMocks();
@@ -44,19 +40,17 @@ beforeEach(() => {
 
 describe("buildStart", () => {
   test("Should write to dev application manifest file when using a serve command", async () => {
-    vi.spyOn(fs, "readFileSync").mockImplementation((path) => {
-      if (path === "package.json") {
-        return JSON.stringify({});
-      } else if (path === root + "/my-component.tsx") {
-        return `
-            const MY_QUERY = gql\`query HelloWorldQuery($name: string!) @tool(name: "hello-world", description: "This is an awesome tool!", extraInputs: [{
-              name: "doStuff",
-              type: "boolean",
-              description: "Should we do stuff?"
-            }]) { helloWorld(name: $name) }\`;
-        `;
-      }
+    mockReadFile({
+      "package.json": JSON.stringify({}),
+      [`${root}/my-component.tsx`]: `
+const MY_QUERY = gql\`query HelloWorldQuery($name: string!) @tool(name: "hello-world", description: "This is an awesome tool!", extraInputs: [{
+  name: "doStuff",
+  type: "boolean",
+  description: "Should we do stuff?"
+}]) { helloWorld(name: $name) }\`;
+      `,
     });
+
     vi.spyOn(glob, "glob").mockImplementation(() =>
       Promise.resolve(["my-component.tsx"])
     );
@@ -119,14 +113,11 @@ describe("buildStart", () => {
   });
 
   test("Should NOT write to dev application manifest file when using a build command", async () => {
-    vi.spyOn(fs, "readFileSync").mockImplementation((path) => {
-      if (path === "package.json") {
-        return JSON.stringify({});
-      } else if (path === "my-component.tsx") {
-        return `
-            const MY_QUERY = gql\`query HelloWorldQuery @tool(name: "hello-world", description: "This is an awesome tool!") { helloWorld }\`;
-        `;
-      }
+    mockReadFile({
+      "package.json": JSON.stringify({}),
+      "my-component.tsx": `
+        const MY_QUERY = gql\`query HelloWorldQuery @tool(name: "hello-world", description: "This is an awesome tool!") { helloWorld }\`;
+      `,
     });
     vi.spyOn(glob, "glob").mockImplementation(() =>
       Promise.resolve(["my-component.tsx"])
@@ -142,14 +133,11 @@ describe("buildStart", () => {
   });
 
   test("Should not process files that do not contain gql tags", async () => {
-    vi.spyOn(fs, "readFileSync").mockImplementation((path) => {
-      if (path === "package.json") {
-        return JSON.stringify({});
-      } else if (path === root + "/my-component.tsx") {
-        return `
-            const MY_QUERY = \`query HelloWorldQuery @tool(name: "hello-world", description: "This is an awesome tool!") { helloWorld }\`;
-        `;
-      }
+    mockReadFile({
+      "package.json": JSON.stringify({}),
+      [`${root}/my-component.tsx`]: `
+        const MY_QUERY = \`query HelloWorldQuery @tool(name: "hello-world", description: "This is an awesome tool!") { helloWorld }\`;
+      `,
     });
     vi.spyOn(glob, "glob").mockImplementation(() =>
       Promise.resolve(["my-component.tsx"])
@@ -187,14 +175,11 @@ describe("buildStart", () => {
   });
 
   test("Should capture queries when writing to manifest file", async () => {
-    vi.spyOn(fs, "readFileSync").mockImplementation((path) => {
-      if (path === "package.json") {
-        return JSON.stringify({});
-      } else if (path === root + "/my-component.tsx") {
-        return `
-            const MY_QUERY = gql\`query HelloWorldQuery { helloWorld }\`;
-        `;
-      }
+    mockReadFile({
+      "package.json": JSON.stringify({}),
+      [`${root}/my-component.tsx`]: `
+        const MY_QUERY = gql\`query HelloWorldQuery { helloWorld }\`;
+      `,
     });
     vi.spyOn(glob, "glob").mockImplementation(() =>
       Promise.resolve(["my-component.tsx"])
@@ -244,14 +229,11 @@ describe("buildStart", () => {
   });
 
   test("Should capture queries as prefetch when query is marked with @prefetch directive", async () => {
-    vi.spyOn(fs, "readFileSync").mockImplementation((path) => {
-      if (path === "package.json") {
-        return JSON.stringify({});
-      } else if (path === root + "/my-component.tsx") {
-        return `
-            const MY_QUERY = gql\`query HelloWorldQuery @prefetch { helloWorld }\`;
-        `;
-      }
+    mockReadFile({
+      "package.json": JSON.stringify({}),
+      [`${root}/my-component.tsx`]: `
+        const MY_QUERY = gql\`query HelloWorldQuery @prefetch { helloWorld }\`;
+      `,
     });
     vi.spyOn(glob, "glob").mockImplementation(() =>
       Promise.resolve(["my-component.tsx"])
@@ -302,15 +284,12 @@ describe("buildStart", () => {
   });
 
   test("Should error when multiple operations are marked with @prefetch", async () => {
-    vi.spyOn(fs, "readFileSync").mockImplementation((path) => {
-      if (path === "package.json") {
-        return JSON.stringify({});
-      } else if (path === "my-component.tsx") {
-        return `
-            const MY_QUERY = gql\`query HelloWorldQuery @prefetch { helloWorld }\`;
-            const MY_QUERY2 = gql\`query HelloWorldQuery2 @prefetch { helloWorld }\`;
-        `;
-      }
+    mockReadFile({
+      "package.json": JSON.stringify({}),
+      "my-component.tsx": `
+        const MY_QUERY = gql\`query HelloWorldQuery @prefetch { helloWorld }\`;
+        const MY_QUERY2 = gql\`query HelloWorldQuery2 @prefetch { helloWorld }\`;
+      `,
     });
     vi.spyOn(glob, "glob").mockImplementation(() =>
       Promise.resolve(["my-component.tsx"])
@@ -328,14 +307,11 @@ describe("buildStart", () => {
   });
 
   test("Should capture mutations when writing to manifest file", async () => {
-    vi.spyOn(fs, "readFileSync").mockImplementation((path) => {
-      if (path === "package.json") {
-        return JSON.stringify({});
-      } else if (path === root + "/my-component.tsx") {
-        return `
-            const MY_QUERY = gql\`mutation HelloWorldQuery @tool(name: "hello-world", description: "This is an awesome tool!") { helloWorld }\`;
-        `;
-      }
+    mockReadFile({
+      "package.json": JSON.stringify({}),
+      [`${root}/my-component.tsx`]: `
+        const MY_QUERY = gql\`mutation HelloWorldQuery @tool(name: "hello-world", description: "This is an awesome tool!") { helloWorld }\`;
+      `,
     });
     vi.spyOn(glob, "glob").mockImplementation(() =>
       Promise.resolve(["my-component.tsx"])
@@ -390,14 +366,11 @@ describe("buildStart", () => {
   });
 
   test("Should throw error when a subscription operation type is discovered", async () => {
-    vi.spyOn(fs, "readFileSync").mockImplementation((path) => {
-      if (path === "package.json") {
-        return JSON.stringify({});
-      } else if (path === "my-component.tsx") {
-        return `
-            const MY_QUERY = gql\`subscription HelloWorldQuery @tool(name: "hello-world", description: "This is an awesome tool!") { helloWorld }\`;
-        `;
-      }
+    mockReadFile({
+      "package.json": JSON.stringify({}),
+      "my-component.tsx": `
+        const MY_QUERY = gql\`subscription HelloWorldQuery @tool(name: "hello-world", description: "This is an awesome tool!") { helloWorld }\`;
+      `,
     });
     vi.spyOn(glob, "glob").mockImplementation(() =>
       Promise.resolve(["my-component.tsx"])
@@ -416,18 +389,15 @@ describe("buildStart", () => {
   });
 
   test("Should use custom entry point when in serve mode and provided in package.json", async () => {
-    vi.spyOn(fs, "readFileSync").mockImplementation((path) => {
-      if (path === "package.json") {
-        return JSON.stringify({
-          entry: {
-            staging: "http://staging.awesome.com",
-          },
-        });
-      } else if (path === "my-component.tsx") {
-        return `
-            const MY_QUERY = gql\`query HelloWorldQuery @tool(name: "hello-world", description: "This is an awesome tool!") { helloWorld }\`;
-        `;
-      }
+    mockReadFile({
+      "package.json": JSON.stringify({
+        entry: {
+          staging: "http://staging.awesome.com",
+        },
+      }),
+      "my-component.tsx": `
+        const MY_QUERY = gql\`query HelloWorldQuery @tool(name: "hello-world", description: "This is an awesome tool!") { helloWorld }\`;
+      `,
     });
     vi.spyOn(glob, "glob").mockImplementation(() =>
       Promise.resolve(["my-component.tsx"])
@@ -444,21 +414,18 @@ describe("buildStart", () => {
     });
     await plugin.buildStart();
 
-    let [file, content] = (fs.writeFileSync as unknown as Mock).mock.calls[0];
+    let [, content] = (fs.writeFileSync as unknown as Mock).mock.calls[0];
     let contentObj = JSON.parse(content);
 
     expect(contentObj.resource).toBe("http://staging.awesome.com");
   });
 
   test("Should use https when enabled in server config", async () => {
-    vi.spyOn(fs, "readFileSync").mockImplementation((path) => {
-      if (path === "package.json") {
-        return JSON.stringify({});
-      } else if (path === "my-component.tsx") {
-        return `
-            const MY_QUERY = gql\`query HelloWorldQuery @tool(name: "hello-world", description: "This is an awesome tool!") { helloWorld }\`;
-        `;
-      }
+    mockReadFile({
+      "package.json": JSON.stringify({}),
+      "my-component.tsx": `
+        const MY_QUERY = gql\`query HelloWorldQuery @tool(name: "hello-world", description: "This is an awesome tool!") { helloWorld }\`;
+      `,
     });
     vi.spyOn(glob, "glob").mockImplementation(() =>
       Promise.resolve(["my-component.tsx"])
@@ -474,21 +441,18 @@ describe("buildStart", () => {
     });
     await plugin.buildStart();
 
-    let [file, content] = (fs.writeFileSync as unknown as Mock).mock.calls[0];
+    let [, content] = (fs.writeFileSync as unknown as Mock).mock.calls[0];
     let contentObj = JSON.parse(content);
 
     expect(contentObj.resource).toBe("https://localhost:5678");
   });
 
   test("Should use custom host when specified in server config", async () => {
-    vi.spyOn(fs, "readFileSync").mockImplementation((path) => {
-      if (path === "package.json") {
-        return JSON.stringify({});
-      } else if (path === "my-component.tsx") {
-        return `
-            const MY_QUERY = gql\`query HelloWorldQuery @tool(name: "hello-world", description: "This is an awesome tool!") { helloWorld }\`;
-        `;
-      }
+    mockReadFile({
+      "package.json": JSON.stringify({}),
+      "my-component.tsx": `
+        const MY_QUERY = gql\`query HelloWorldQuery @tool(name: "hello-world", description: "This is an awesome tool!") { helloWorld }\`;
+      `,
     });
     vi.spyOn(glob, "glob").mockImplementation(() =>
       Promise.resolve(["my-component.tsx"])
@@ -504,21 +468,18 @@ describe("buildStart", () => {
     });
     await plugin.buildStart();
 
-    let [file, content] = (fs.writeFileSync as unknown as Mock).mock.calls[0];
+    let [, content] = (fs.writeFileSync as unknown as Mock).mock.calls[0];
     let contentObj = JSON.parse(content);
 
     expect(contentObj.resource).toBe("http://awesome.com:5678");
   });
 
   test("Should error when tool name is not provided", async () => {
-    vi.spyOn(fs, "readFileSync").mockImplementation((path) => {
-      if (path === "package.json") {
-        return JSON.stringify({});
-      } else if (path === "my-component.tsx") {
-        return `
-            const MY_QUERY = gql\`query HelloWorldQuery @tool { helloWorld }\`;
-        `;
-      }
+    mockReadFile({
+      "package.json": JSON.stringify({}),
+      "my-component.tsx": `
+        const MY_QUERY = gql\`query HelloWorldQuery @tool { helloWorld }\`;
+      `,
     });
     vi.spyOn(glob, "glob").mockImplementation(() =>
       Promise.resolve(["my-component.tsx"])
@@ -537,14 +498,11 @@ describe("buildStart", () => {
   });
 
   test("Should error when tool description is not provided", async () => {
-    vi.spyOn(fs, "readFileSync").mockImplementation((path) => {
-      if (path === "package.json") {
-        return JSON.stringify({});
-      } else if (path === "my-component.tsx") {
-        return `
-            const MY_QUERY = gql\`query HelloWorldQuery @tool(name: "hello-world") { helloWorld }\`;
-        `;
-      }
+    mockReadFile({
+      "package.json": JSON.stringify({}),
+      "my-component.tsx": `
+        const MY_QUERY = gql\`query HelloWorldQuery @tool(name: "hello-world") { helloWorld }\`;
+      `,
     });
     vi.spyOn(glob, "glob").mockImplementation(() =>
       Promise.resolve(["my-component.tsx"])
@@ -563,14 +521,11 @@ describe("buildStart", () => {
   });
 
   test("Should error when tool name contains spaces", async () => {
-    vi.spyOn(fs, "readFileSync").mockImplementation((path) => {
-      if (path === "package.json") {
-        return JSON.stringify({});
-      } else if (path === "my-component.tsx") {
-        return `
-            const MY_QUERY = gql\`query HelloWorldQuery @tool(name: "hello world", description: "A tool") { helloWorld }\`;
-        `;
-      }
+    mockReadFile({
+      "package.json": JSON.stringify({}),
+      "my-component.tsx": `
+        const MY_QUERY = gql\`query HelloWorldQuery @tool(name: "hello world", description: "A tool") { helloWorld }\`;
+      `,
     });
     vi.spyOn(glob, "glob").mockImplementation(() =>
       Promise.resolve(["my-component.tsx"])
@@ -589,14 +544,11 @@ describe("buildStart", () => {
   });
 
   test("Should error when tool name is not a string", async () => {
-    vi.spyOn(fs, "readFileSync").mockImplementation((path) => {
-      if (path === "package.json") {
-        return JSON.stringify({});
-      } else if (path === "my-component.tsx") {
-        return `
-            const MY_QUERY = gql\`query HelloWorldQuery @tool(name: true) { helloWorld }\`;
-        `;
-      }
+    mockReadFile({
+      "package.json": JSON.stringify({}),
+      "my-component.tsx": `
+        const MY_QUERY = gql\`query HelloWorldQuery @tool(name: true) { helloWorld }\`;
+      `,
     });
     vi.spyOn(glob, "glob").mockImplementation(() =>
       Promise.resolve(["my-component.tsx"])
@@ -615,14 +567,11 @@ describe("buildStart", () => {
   });
 
   test("Should error when tool description is not a string", async () => {
-    vi.spyOn(fs, "readFileSync").mockImplementation((path) => {
-      if (path === "package.json") {
-        return JSON.stringify({});
-      } else if (path === "my-component.tsx") {
-        return `
-            const MY_QUERY = gql\`query HelloWorldQuery @tool(name: "hello-world", description: false) { helloWorld }\`;
-        `;
-      }
+    mockReadFile({
+      "package.json": JSON.stringify({}),
+      "my-component.tsx": `
+        const MY_QUERY = gql\`query HelloWorldQuery @tool(name: "hello-world", description: false) { helloWorld }\`;
+      `,
     });
     vi.spyOn(glob, "glob").mockImplementation(() =>
       Promise.resolve(["my-component.tsx"])
@@ -641,14 +590,11 @@ describe("buildStart", () => {
   });
 
   test("Should error when extraInputs is not an array", async () => {
-    vi.spyOn(fs, "readFileSync").mockImplementation((path) => {
-      if (path === "package.json") {
-        return JSON.stringify({});
-      } else if (path === "my-component.tsx") {
-        return `
-            const MY_QUERY = gql\`query HelloWorldQuery @tool(name: "hello-world", description: "hello", extraInputs: false ) { helloWorld }\`;
-        `;
-      }
+    mockReadFile({
+      "package.json": JSON.stringify({}),
+      "my-component.tsx": `
+        const MY_QUERY = gql\`query HelloWorldQuery @tool(name: "hello-world", description: "hello", extraInputs: false ) { helloWorld }\`;
+      `,
     });
     vi.spyOn(glob, "glob").mockImplementation(() =>
       Promise.resolve(["my-component.tsx"])
@@ -667,16 +613,13 @@ describe("buildStart", () => {
   });
 
   test("Should error when an unknown type is discovered", async () => {
-    vi.spyOn(fs, "readFileSync").mockImplementation((path) => {
-      if (path === "package.json") {
-        return JSON.stringify({});
-      } else if (path === "my-component.tsx") {
-        return `
-            const MY_QUERY = gql\`query HelloWorldQuery @tool(name: "hello-world", description: "hello", extraInputs: [{
-              name: 3.1
-            }] ) { helloWorld }\`;
-        `;
-      }
+    mockReadFile({
+      "package.json": JSON.stringify({}),
+      "my-component.tsx": `
+        const MY_QUERY = gql\`query HelloWorldQuery @tool(name: "hello-world", description: "hello", extraInputs: [{
+          name: 3.1
+        }] ) { helloWorld }\`;
+      `,
     });
     vi.spyOn(glob, "glob").mockImplementation(() =>
       Promise.resolve(["my-component.tsx"])
@@ -695,25 +638,22 @@ describe("buildStart", () => {
   });
 
   test("Should order operations and fragments when generating normalized operation", async () => {
-    vi.spyOn(fs, "readFileSync").mockImplementation((path) => {
-      if (path === "package.json") {
-        return JSON.stringify({});
-      } else if (path === root + "/my-component.tsx") {
-        return `
-            const MY_QUERY = gql\`
-              fragment A on User { firstName }
-              fragment B on User { lastName }
-              query HelloWorldQuery @tool(name: "hello-world", description: "This is an awesome tool!") {
-                helloWorld {
-                  ...B
-                  ...A
-                  ...C
-                }
+    mockReadFile({
+      "package.json": JSON.stringify({}),
+      [`${root}/my-component.tsx`]: `
+        const MY_QUERY = gql\`
+          fragment A on User { firstName }
+          fragment B on User { lastName }
+          query HelloWorldQuery @tool(name: "hello-world", description: "This is an awesome tool!") {
+            helloWorld {
+              ...B
+              ...A
+              ...C
+            }
 
-              fragment C on User { middleName }
-              }\`;
-        `;
-      }
+            fragment C on User { middleName }
+          }\`;
+      `,
     });
     vi.spyOn(glob, "glob").mockImplementation(() =>
       Promise.resolve(["my-component.tsx"])
@@ -792,18 +732,15 @@ describe("buildStart", () => {
 
 describe("writeBundle", () => {
   test("Should use custom entry point when in build mode and provided in package.json", async () => {
-    vi.spyOn(fs, "readFileSync").mockImplementation((path) => {
-      if (path === "package.json") {
-        return JSON.stringify({
-          entry: {
-            staging: "http://staging.awesome.com",
-          },
-        });
-      } else if (path === "my-component.tsx") {
-        return `
-            const MY_QUERY = gql\`query HelloWorldQuery @tool(name: "hello-world", description: "This is an awesome tool!") { helloWorld }\`;
-        `;
-      }
+    mockReadFile({
+      "package.json": JSON.stringify({
+        entry: {
+          staging: "http://staging.awesome.com",
+        },
+      }),
+      "my-component.tsx": `
+        const MY_QUERY = gql\`query HelloWorldQuery @tool(name: "hello-world", description: "This is an awesome tool!") { helloWorld }\`;
+      `,
     });
     vi.spyOn(glob, "glob").mockImplementation(() =>
       Promise.resolve(["my-component.tsx"])
@@ -822,21 +759,18 @@ describe("writeBundle", () => {
     await plugin.buildStart();
     await plugin.writeBundle();
 
-    let [file, content] = (fs.writeFileSync as unknown as Mock).mock.calls[0];
+    let [, content] = (fs.writeFileSync as unknown as Mock).mock.calls[0];
     let contentObj = JSON.parse(content);
 
     expect(contentObj.resource).toBe("http://staging.awesome.com");
   });
 
   test("Should use index.html when in build production and not provided in package.json", async () => {
-    vi.spyOn(fs, "readFileSync").mockImplementation((path) => {
-      if (path === "package.json") {
-        return JSON.stringify({});
-      } else if (path === "my-component.tsx") {
-        return `
-            const MY_QUERY = gql\`query HelloWorldQuery @tool(name: "hello-world", description: "This is an awesome tool!") { helloWorld }\`;
-        `;
-      }
+    mockReadFile({
+      "package.json": JSON.stringify({}),
+      "my-component.tsx": `
+        const MY_QUERY = gql\`query HelloWorldQuery @tool(name: "hello-world", description: "This is an awesome tool!") { helloWorld }\`;
+      `,
     });
     vi.spyOn(glob, "glob").mockImplementation(() =>
       Promise.resolve(["my-component.tsx"])
@@ -855,21 +789,18 @@ describe("writeBundle", () => {
     await plugin.buildStart();
     await plugin.writeBundle();
 
-    let [file, content] = (fs.writeFileSync as unknown as Mock).mock.calls[0];
+    let [, content] = (fs.writeFileSync as unknown as Mock).mock.calls[0];
     let contentObj = JSON.parse(content);
 
     expect(contentObj.resource).toBe("index.html");
   });
 
   test("Should throw an error when in build mode and using a mode that is not production and not provided in package.json", async () => {
-    vi.spyOn(fs, "readFileSync").mockImplementation((path) => {
-      if (path === "package.json") {
-        return JSON.stringify({});
-      } else if (path === "my-component.tsx") {
-        return `
-            const MY_QUERY = gql\`query HelloWorldQuery @tool(name: "hello-world", description: "This is an awesome tool!") { helloWorld }\`;
-        `;
-      }
+    mockReadFile({
+      "package.json": JSON.stringify({}),
+      "my-component.tsx": `
+        const MY_QUERY = gql\`query HelloWorldQuery @tool(name: "hello-world", description: "This is an awesome tool!") { helloWorld }\`;
+      `,
     });
     vi.spyOn(glob, "glob").mockImplementation(() =>
       Promise.resolve(["my-component.tsx"])
@@ -895,14 +826,11 @@ describe("writeBundle", () => {
   });
 
   test("Should always write to both locations when running in build mode", async () => {
-    vi.spyOn(fs, "readFileSync").mockImplementation((path) => {
-      if (path === "package.json") {
-        return JSON.stringify({});
-      } else if (path === "my-component.tsx") {
-        return `
-            const MY_QUERY = gql\`query HelloWorldQuery @tool(name: "hello-world", description: "This is an awesome tool!") { helloWorld }\`;
-        `;
-      }
+    mockReadFile({
+      "package.json": JSON.stringify({}),
+      "my-component.tsx": `
+        const MY_QUERY = gql\`query HelloWorldQuery @tool(name: "hello-world", description: "This is an awesome tool!") { helloWorld }\`;
+      `,
     });
     vi.spyOn(glob, "glob").mockImplementation(() =>
       Promise.resolve(["my-component.tsx"])
@@ -927,18 +855,15 @@ describe("writeBundle", () => {
 
 describe("configureServer", () => {
   test("Should write to manifest file when package.json or file is updated", async () => {
-    vi.spyOn(fs, "readFileSync").mockImplementation((path) => {
-      if (path === "package.json") {
-        return JSON.stringify({});
-      } else if (path === "my-component.tsx") {
-        return `
-            const MY_QUERY = gql\`query HelloWorldQuery($name: string!) @tool(name: "hello-world", description: "This is an awesome tool!", extraInputs: [{
-              name: "doStuff",
-              type: "boolean",
-              description: "Should we do stuff?"
-            }]) { helloWorld(name: $name) }\`;
-        `;
-      }
+    mockReadFile({
+      "package.json": JSON.stringify({}),
+      "my-component.tsx": `
+        const MY_QUERY = gql\`query HelloWorldQuery($name: string!) @tool(name: "hello-world", description: "This is an awesome tool!", extraInputs: [{
+          name: "doStuff",
+          type: "boolean",
+          description: "Should we do stuff?"
+        }]) { helloWorld(name: $name) }\`;
+      `,
     });
     vi.spyOn(glob, "glob").mockImplementation(() =>
       Promise.resolve(["my-component.tsx"])
@@ -946,16 +871,18 @@ describe("configureServer", () => {
     vi.spyOn(path, "resolve").mockImplementation((_, file) => file);
     vi.spyOn(fs, "writeFileSync");
 
+    let _callbacks: Function[] = [];
+
     const server = {
       watcher: {
         init: () => {
-          this._callbacks = [];
+          _callbacks = [];
         },
         on: (_event: string, callback: Function) => {
-          this._callbacks.push(callback);
+          _callbacks.push(callback);
         },
-        trigger: async (file) => {
-          for (const callback of this._callbacks) {
+        trigger: async (file: string) => {
+          for (const callback of _callbacks) {
             await callback(file);
           }
         },
@@ -970,10 +897,28 @@ describe("configureServer", () => {
       build: { outDir: "/dist" },
     });
     await plugin.buildStart();
-    await plugin.configureServer(server);
+    plugin.configureServer(server);
     await server.watcher.trigger("package.json");
     await server.watcher.trigger("my-component.tsx");
 
     expect(fs.writeFileSync).toBeCalledTimes(6);
   });
 });
+
+type FilePath = string;
+
+function mockReadFile(mocks: Record<FilePath, string | (() => string)>) {
+  vi.spyOn(fs, "readFileSync").mockImplementation((path) => {
+    const mock = mocks[path.toString()];
+
+    if (!mock) {
+      throw new Error(`No matched mock for path '${path}'`);
+    }
+
+    if (typeof mock === "function") {
+      return mock();
+    }
+
+    return mock;
+  });
+}

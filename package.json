@@ -15,18 +15,24 @@
     ".": "./dist/index.js",
     "./vite": "./dist/vite/index.js"
   },
+  "devEngines": {
+    "packageManager": {
+      "name": "npm"
+    }
+  },
   "scripts": {
     "dev": "node ./scripts/dev.mjs",
     "prebuild": "npm run clean",
-    "build": "npm run build:react && npm run build:vite",
-    "build:react": "node ./scripts/build.mjs && tsc src/index.ts --emitDeclarationOnly --declaration --outDir dist --skipLibCheck --lib ES2015,DOM --target ES2015 --moduleResolution bundler --jsx react",
-    "build:vite": "node ./scripts/build-vite.mjs && tsc src/vite/index.ts --emitDeclarationOnly --declaration --outDir dist/vite --skipLibCheck --lib ES2015,DOM --target ES2020 --module esnext --moduleResolution node  --allowSyntheticDefaultImports",
+    "build": "npm run build:src && npm run build:vite",
+    "build:src": "tsc --project tsconfig.src.build.json",
+    "build:vite": "tsc --project tsconfig.vite.build.json",
     "clean": "rimraf dist",
     "test": "vitest run --coverage",
     "test:watch": "vitest --coverage",
     "changeset": "knope document-change",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "typecheck": "tsc -b --emitDeclarationOnly"
   },
   "keywords": [],
   "author": "",
@@ -36,7 +42,7 @@
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.0",
     "@testing-library/react-render-stream": "^2.0.2",
-    "@types/node": "^24.10.0",
+    "@types/node": "^24.10.4",
     "@types/react": "^19.2.2",
     "@vitejs/plugin-react": "^5.1.1",
     "@vitest/coverage-v8": "^4.0.13",
@@ -57,6 +63,7 @@
     "@apollo/client": "^4.0.9",
     "@graphql-tools/graphql-tag-pluck": "^8.3.23",
     "crypto-hash": "^4.0.0",
-    "glob": "^11.0.3"
+    "glob": "^11.0.3",
+    "tslib": "^2.8.1"
   }
 }

@@ -2,20 +2,17 @@ import { readFileSync, writeFileSync, mkdirSync } from "fs";
 import { glob } from "glob";
 import { gqlPluckFromCodeStringSync } from "@graphql-tools/graphql-tag-pluck";
 import { createHash } from "crypto";
-import {
+import type {
   ArgumentNode,
-  Kind,
   ListTypeNode,
   NamedTypeNode,
   NonNullTypeNode,
-  parse,
-  print,
   TypeNode,
   ValueNode,
-  visit,
-  type DocumentNode,
-  type OperationDefinitionNode,
+  DocumentNode,
+  OperationDefinitionNode,
 } from "graphql";
+import { Kind, parse, print, visit } from "graphql";
 import { ApolloClient, ApolloLink, InMemoryCache } from "@apollo/client";
 import Observable from "rxjs";
 import path from "path";
