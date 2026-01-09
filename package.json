@@ -15,6 +15,11 @@
     ".": "./dist/index.js",
     "./vite": "./dist/vite/index.js"
   },
+  "devEngines": {
+    "packageManager": {
+      "name": "npm"
+    }
+  },
   "scripts": {
     "dev": "node ./scripts/dev.mjs",
     "prebuild": "npm run clean",
