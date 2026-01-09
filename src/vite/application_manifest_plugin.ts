@@ -14,6 +14,7 @@ import type {
 } from "graphql";
 import { Kind, parse, print, visit } from "graphql";
 import { ApolloClient, ApolloLink, InMemoryCache } from "@apollo/client";
+import { removeDirectivesFromDocument } from "@apollo/client/utilities/internal";
 import Observable from "rxjs";
 import path from "path";
 
@@ -367,14 +368,8 @@ export function sortTopLevelDefinitions(query: DocumentNode): DocumentNode {
 }
 
 function removeClientDirective(doc: DocumentNode) {
-  return visit(doc, {
-    OperationDefinition(node) {
-      return {
-        ...node,
-        directives: node.directives?.filter(
-          (d) => d.name.value !== "prefetch" && d.name.value !== "tool"
-        ),
-      };
-    },
-  });
+  return removeDirectivesFromDocument(
+    [{ name: "prefetch" }, { name: "tool" }],
+    doc
+  )!;
 }
