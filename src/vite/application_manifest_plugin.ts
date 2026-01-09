@@ -12,7 +12,7 @@ import type {
   DocumentNode,
   OperationDefinitionNode,
 } from "graphql";
-import { Kind, parse, print, visit } from "graphql";
+import { Kind, parse, print } from "graphql";
 import { ApolloClient, ApolloLink, InMemoryCache } from "@apollo/client";
 import { removeDirectivesFromDocument } from "@apollo/client/utilities/internal";
 import Observable from "rxjs";
