@@ -20,17 +20,62 @@ jobs:
       - name: Install dependencies (with cache)
         uses: bahmutov/npm-install@v1
 
+      - name: Run build
+        run: npm run build
+
+  typecheck:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24.x
+
+      - name: Install dependencies (with cache)
+        uses: bahmutov/npm-install@v1
+
       - name: Check types
         shell: bash
         run: npm run typecheck
 
-      - name: Run build
-        run: npm run build
+  check-formatting:
+    runs-on: ubuntu-latest
 
-      - name: Test
-        shell: bash
-        run: npm run test
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24.x
+
+      - name: Install dependencies (with cache)
+        uses: bahmutov/npm-install@v1
 
       - name: Check formatting
         shell: bash
         run: npm run format:check
+
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24.x
+
+      - name: Install dependencies (with cache)
+        uses: bahmutov/npm-install@v1
+
+      - name: Check types
+        shell: bash
+        run: npm test
