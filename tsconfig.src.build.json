@@ -1,6 +1,6 @@
 {
   "$schema": "https://json.schemastore.org/tsconfig",
-  "extends": "./tsconfig.base.json",
+  "extends": "./tsconfig.base.build.json",
   "include": ["./src"],
   "exclude": [
     "./src/**/*.test.ts",
@@ -9,13 +9,6 @@
     "./src/testing/internal/"
   ],
   "compilerOptions": {
-    "noEmit": false,
-    "rootDir": "./src",
-    "outDir": "./dist",
-    "lib": ["DOM"],
-    "inlineSources": true,
-    "sourceMap": true,
-    "declaration": true,
-    "declarationMap": true
+    "lib": ["DOM"]
   }
 }
