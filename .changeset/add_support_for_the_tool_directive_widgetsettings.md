@@ -15,3 +15,9 @@ Add support for `widgetSettings` in the manifest file. This includes `widgetSett
   }
 }
 ```
+
+These map to the OpenAI meta fields:
+
+- `widgetSettings.description` -> `openai/widgetDescription`
+- `widgetSettings.domain` -> `openai/widgetDomain`
+- `widgetSettings.prefersBorder` -> `openai/widgetPrefersBorder,`
