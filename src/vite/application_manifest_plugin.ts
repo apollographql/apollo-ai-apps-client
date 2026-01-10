@@ -21,7 +21,6 @@ import path from "path";
 import type {
   ManifestExtraInput,
   ManifestTool,
-  ManifestWidgetSettings,
 } from "../types/application-manifest.js";
 
 const root = process.cwd();
