@@ -4,6 +4,7 @@ import { ApplicationManifestPlugin } from "../application_manifest_plugin.js";
 import fs from "fs";
 import * as glob from "glob";
 import path from "path";
+import type { ManifestWidgetSettings } from "../../types/application-manifest.js";
 
 const root = process.cwd();
 
@@ -41,7 +42,13 @@ beforeEach(() => {
 describe("buildStart", () => {
   test("Should write to dev application manifest file when using a serve command", async () => {
     mockReadFile({
-      "package.json": JSON.stringify({}),
+      "package.json": JSON.stringify({
+        widgetSettings: {
+          description: "Test",
+          domain: "https://example.com",
+          prefersBorder: true,
+        } satisfies ManifestWidgetSettings,
+      }),
       [`${root}/my-component.tsx`]: `
 const MY_QUERY = gql\`query HelloWorldQuery($name: string!) @tool(name: "hello-world", description: "This is an awesome tool!", extraInputs: [{
   name: "doStuff",
@@ -108,6 +115,11 @@ const MY_QUERY = gql\`query HelloWorldQuery($name: string!) @tool(name: "hello-w
         ],
         "resource": "http://localhost:undefined",
         "version": "1",
+        "widgetSettings": {
+          "description": "Test",
+          "domain": "https://example.com",
+          "prefersBorder": true,
+        },
       }
     `);
   });
@@ -610,6 +622,108 @@ const MY_QUERY = gql\`query HelloWorldQuery($name: string!) @tool(name: "hello-w
     ).rejects.toThrowErrorMatchingInlineSnapshot(
       `[Error: Expected argument 'extraInputs' to be of type 'ListValue' but found 'BooleanValue' instead.]`
     );
+  });
+
+  test("Should error when widgetSettings.prefersBorder is not a boolean", async () => {
+    mockReadFile({
+      "package.json": JSON.stringify({
+        widgetSettings: {
+          prefersBorder: "test",
+        },
+      }),
+      "my-component.tsx": `
+        const MY_QUERY = gql\`query HelloWorldQuery @tool(name: "test", description: "Test") { helloWorld }\`;
+      `,
+    });
+    vi.spyOn(glob, "glob").mockImplementation(() =>
+      Promise.resolve(["my-component.tsx"])
+    );
+    vi.spyOn(path, "resolve").mockImplementation((_, file) => file);
+    vi.spyOn(fs, "writeFileSync");
+
+    const plugin = ApplicationManifestPlugin();
+    plugin.configResolved({ command: "serve", server: {} });
+
+    await expect(
+      async () => await plugin.buildStart()
+    ).rejects.toThrowErrorMatchingInlineSnapshot(
+      `[Error: Expected 'widgetSettings.prefersBorder' to be of type 'boolean' but found 'string' instead.]`
+    );
+  });
+
+  test("Should error when widgetSettings.description is not a string", async () => {
+    mockReadFile({
+      "package.json": JSON.stringify({
+        widgetSettings: {
+          description: true,
+        },
+      }),
+      "my-component.tsx": `
+        const MY_QUERY = gql\`query HelloWorldQuery @tool(name: "test", description: "Test") { helloWorld }\`;
+      `,
+    });
+    vi.spyOn(glob, "glob").mockImplementation(() =>
+      Promise.resolve(["my-component.tsx"])
+    );
+    vi.spyOn(path, "resolve").mockImplementation((_, file) => file);
+    vi.spyOn(fs, "writeFileSync");
+
+    const plugin = ApplicationManifestPlugin();
+    plugin.configResolved({ command: "serve", server: {} });
+
+    await expect(
+      async () => await plugin.buildStart()
+    ).rejects.toThrowErrorMatchingInlineSnapshot(
+      `[Error: Expected 'widgetSettings.description' to be of type 'string' but found 'boolean' instead.]`
+    );
+  });
+
+  test("Should error when widgetSettings.domain is not a string", async () => {
+    mockReadFile({
+      "package.json": JSON.stringify({
+        widgetSettings: {
+          domain: true,
+        },
+      }),
+      "my-component.tsx": `
+        const MY_QUERY = gql\`query HelloWorldQuery @tool(name: "test", description: "Test") { helloWorld }\`;
+      `,
+    });
+    vi.spyOn(glob, "glob").mockImplementation(() =>
+      Promise.resolve(["my-component.tsx"])
+    );
+    vi.spyOn(path, "resolve").mockImplementation((_, file) => file);
+    vi.spyOn(fs, "writeFileSync");
+
+    const plugin = ApplicationManifestPlugin();
+    plugin.configResolved({ command: "serve", server: {} });
+
+    await expect(
+      async () => await plugin.buildStart()
+    ).rejects.toThrowErrorMatchingInlineSnapshot(
+      `[Error: Expected 'widgetSettings.domain' to be of type 'string' but found 'boolean' instead.]`
+    );
+  });
+
+  test("Should allow empty widgetSettings value", async () => {
+    mockReadFile({
+      "package.json": JSON.stringify({
+        widgetSettings: {},
+      }),
+      "my-component.tsx": `
+        const MY_QUERY = gql\`query HelloWorldQuery @tool(name: "test", description: "Test") { helloWorld }\`;
+      `,
+    });
+    vi.spyOn(glob, "glob").mockImplementation(() =>
+      Promise.resolve(["my-component.tsx"])
+    );
+    vi.spyOn(path, "resolve").mockImplementation((_, file) => file);
+    vi.spyOn(fs, "writeFileSync");
+
+    const plugin = ApplicationManifestPlugin();
+    plugin.configResolved({ command: "serve", server: {}, build: {} });
+
+    await expect(plugin.buildStart()).resolves.toBeUndefined();
   });
 
   test("Should error when an unknown type is discovered", async () => {

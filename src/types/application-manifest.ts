@@ -7,6 +7,7 @@ export type ApplicationManifest = {
   resource: string;
   operations: ManifestOperation[];
   csp: ManifestCsp;
+  widgetSettings?: ManifestWidgetSettings;
 };
 
 export type ManifestOperation = {
@@ -24,6 +25,12 @@ export type ManifestTool = {
   name: string;
   description: string;
   extraInputs?: ManifestExtraInput[];
+};
+
+export type ManifestWidgetSettings = {
+  description?: string;
+  domain?: string;
+  prefersBorder?: boolean;
 };
 
 export type ManifestExtraInput = {

@@ -11,15 +11,23 @@ import type {
   ValueNode,
   DocumentNode,
   OperationDefinitionNode,
+  DirectiveNode,
 } from "graphql";
-import { Kind, parse, print, visit } from "graphql";
+import { Kind, parse, print } from "graphql";
 import { ApolloClient, ApolloLink, InMemoryCache } from "@apollo/client";
-import Observable from "rxjs";
+import { removeDirectivesFromDocument } from "@apollo/client/utilities/internal";
+import { of } from "rxjs";
 import path from "path";
+import type {
+  ApplicationManifest,
+  ManifestExtraInput,
+  ManifestTool,
+  ManifestWidgetSettings,
+} from "../types/application-manifest.js";
 
 const root = process.cwd();
 
-const getRawValue = (node: ValueNode): any => {
+function getRawValue(node: ValueNode): unknown {
   switch (node.kind) {
     case Kind.STRING:
     case Kind.BOOLEAN:
@@ -36,33 +44,71 @@ const getRawValue = (node: ValueNode): any => {
         `Error when parsing directive values: unexpected type '${node.kind}'`
       );
   }
-};
+}
 
-const getTypedDirectiveArgument = (
+function getArgumentValue(
+  argument: ArgumentNode,
+  expectedType: Kind.STRING
+): string;
+
+function getArgumentValue(
+  argument: ArgumentNode,
+  expectedType: Kind.BOOLEAN
+): boolean;
+
+function getArgumentValue(
+  argument: ArgumentNode,
+  expectedType: Kind.LIST
+): unknown[];
+
+function getArgumentValue(
+  argument: ArgumentNode,
+  expectedType: Kind.OBJECT
+): Record<string, unknown>;
+
+function getArgumentValue(argument: ArgumentNode, expectedType: Kind) {
+  const argumentType = argument.value.kind;
+
+  invariant(
+    argumentType === expectedType,
+    `Expected argument '${argument.name.value}' to be of type '${expectedType}' but found '${argumentType}' instead.`
+  );
+
+  return getRawValue(argument.value);
+}
+
+interface GetArgumentNodeOptions {
+  required?: boolean;
+}
+
+function getDirectiveArgument(
   argumentName: string,
-  expectedType: Kind,
-  directiveArguments: readonly ArgumentNode[] | undefined
-) => {
-  if (!directiveArguments || directiveArguments.length === 0) {
-    return undefined;
-  }
+  directive: DirectiveNode,
+  opts: GetArgumentNodeOptions & { required: true }
+): ArgumentNode;
 
-  let argument = directiveArguments.find(
+function getDirectiveArgument(
+  argumentName: string,
+  directive: DirectiveNode,
+  opts?: GetArgumentNodeOptions
+): ArgumentNode | undefined;
+
+function getDirectiveArgument(
+  argumentName: string,
+  directive: DirectiveNode,
+  { required = false }: { required?: boolean } = {}
+) {
+  const argument = directive.arguments?.find(
     (directiveArgument) => directiveArgument.name.value === argumentName
   );
 
-  if (!argument) {
-    return undefined;
-  }
+  invariant(
+    argument || !required,
+    `'${argumentName}' argument must be supplied for @tool`
+  );
 
-  if (argument.value.kind != expectedType) {
-    throw new Error(
-      `Expected argument '${argumentName}' to be of type '${expectedType}' but found '${argument.value.kind}' instead.`
-    );
-  }
-
-  return getRawValue(argument.value);
-};
+  return argument;
+}
 
 function getTypeName(type: TypeNode): string {
   let t = type;
@@ -85,78 +131,73 @@ export const ApplicationManifestPlugin = () => {
         removeClientDirective(sortTopLevelDefinitions(operation.query))
       );
       const name = operation.operationName;
-      const variables = (
-        operation.query.definitions.find(
-          (d) => d.kind === "OperationDefinition"
-        ) as OperationDefinitionNode
-      ).variableDefinitions?.reduce(
+      const definition = operation.query.definitions.find(
+        (d) => d.kind === "OperationDefinition"
+      );
+
+      // Use `operation.query` so that the error reflects the end-user defined
+      // document, not our sorted one
+      invariant(
+        definition,
+        `Document does not contain an operation:\n${print(operation.query)}`
+      );
+
+      const { directives, operation: type } = definition;
+
+      const variables = definition.variableDefinitions?.reduce(
         (obj, varDef) => ({
           ...obj,
           [varDef.variable.name.value]: getTypeName(varDef.type),
         }),
         {}
       );
-      const type = (
-        operation.query.definitions.find(
-          (d) => d.kind === "OperationDefinition"
-        ) as OperationDefinitionNode
-      ).operation;
-      const prefetch = (
-        operation.query.definitions.find(
-          (d) => d.kind === "OperationDefinition"
-        ) as OperationDefinitionNode
-      ).directives?.some((d) => d.name.value === "prefetch");
+
+      const prefetch = directives?.some((d) => d.name.value === "prefetch");
       const id = createHash("sha256").update(body).digest("hex");
       // TODO: For now, you can only have 1 operation marked as prefetch. In the future, we'll likely support more than 1, and the "prefetchId" will be defined on the `@prefetch` itself as an argument
       const prefetchID = prefetch ? "__anonymous" : undefined;
 
-      const tools = (
-        operation.query.definitions.find(
-          (d) => d.kind === "OperationDefinition"
-        ) as OperationDefinitionNode
-      ).directives
+      const tools = directives
         ?.filter((d) => d.name.value === "tool")
         .map((directive) => {
-          const name = getTypedDirectiveArgument(
-            "name",
-            Kind.STRING,
-            directive.arguments
+          const name = getArgumentValue(
+            getDirectiveArgument("name", directive, { required: true }),
+            Kind.STRING
           );
-          const description = getTypedDirectiveArgument(
-            "description",
-            Kind.STRING,
-            directive.arguments
+
+          invariant(
+            name.indexOf(" ") === -1,
+            `Tool with name "${name}" contains spaces which is not allowed.`
           );
-          const extraInputs = getTypedDirectiveArgument(
+
+          const description = getArgumentValue(
+            getDirectiveArgument("description", directive, { required: true }),
+            Kind.STRING
+          );
+
+          const extraInputsNode = getDirectiveArgument(
             "extraInputs",
-            Kind.LIST,
-            directive.arguments
+            directive
           );
 
-          if (!name) {
-            throw new Error("'name' argument must be supplied for @tool");
-          }
-
-          if (name.indexOf(" ") > -1) {
-            throw new Error(
-              `Tool with name "${name}" contains spaces which is not allowed.`
-            );
-          }
-
-          if (!description) {
-            throw new Error(
-              "'description' argument must be supplied for @tool"
-            );
-          }
-
-          return {
+          const toolOptions: ManifestTool = {
             name,
             description,
-            extraInputs,
           };
+
+          if (extraInputsNode) {
+            toolOptions.extraInputs = getArgumentValue(
+              extraInputsNode,
+              Kind.LIST
+            ) as ManifestExtraInput[];
+          }
+
+          return toolOptions;
         });
 
-      return Observable.of({
+      // TODO: Make this object satisfy the `ManifestOperation` type. Currently
+      // it errors because we need more validation on a few of these fields
+      return of({
         data: { id, name, type, body, variables, prefetch, prefetchID, tools },
       });
     }),
@@ -169,7 +210,7 @@ export const ApplicationManifestPlugin = () => {
 
     const fileHash = createHash("md5").update(code).digest("hex");
     if (cache.get("file")?.hash === fileHash) return;
-    const sources = await gqlPluckFromCodeStringSync(file, code, {
+    const sources = gqlPluckFromCodeStringSync(file, code, {
       modules: [
         { name: "graphql-tag", identifier: "gql" },
         { name: "@apollo/client", identifier: "gql" },
@@ -218,11 +259,11 @@ export const ApplicationManifestPlugin = () => {
     const operations = Array.from(cache.values()).flatMap(
       (entry) => entry.operations
     );
-    if (operations.filter((o) => o.prefetch).length > 1) {
-      throw new Error(
-        "Found multiple operations marked as `@prefetch`. You can only mark 1 operation with `@prefetch`."
-      );
-    }
+
+    invariant(
+      operations.filter((o) => o.prefetch).length <= 1,
+      "Found multiple operations marked as `@prefetch`. You can only mark 1 operation with `@prefetch`."
+    );
 
     let resource = "";
     if (config.command === "serve") {
@@ -242,7 +283,7 @@ export const ApplicationManifestPlugin = () => {
       }
     }
 
-    const manifest = {
+    const manifest: ApplicationManifest = {
       format: "apollo-ai-app-manifest",
       version: "1",
       name: packageJson.name,
@@ -257,6 +298,32 @@ export const ApplicationManifestPlugin = () => {
         resourceDomains: packageJson.csp?.resourceDomains ?? [],
       },
     };
+
+    if (
+      packageJson.widgetSettings &&
+      Object.keys(packageJson.widgetSettings).length > 0
+    ) {
+      function validateWidgetSetting(
+        key: keyof ManifestWidgetSettings,
+        type: "string" | "boolean"
+      ) {
+        if (key in widgetSettings) {
+          invariant(
+            typeof widgetSettings[key] === type,
+            `Expected 'widgetSettings.${key}' to be of type '${type}' but found '${typeof widgetSettings[key]}' instead.`
+          );
+        }
+      }
+
+      const widgetSettings =
+        packageJson.widgetSettings as ManifestWidgetSettings;
+
+      validateWidgetSetting("prefersBorder", "boolean");
+      validateWidgetSetting("description", "string");
+      validateWidgetSetting("domain", "string");
+
+      manifest.widgetSettings = packageJson.widgetSettings;
+    }
 
     // Always write to build directory so the MCP server picks it up
     const dest = path.resolve(
@@ -363,14 +430,14 @@ export function sortTopLevelDefinitions(query: DocumentNode): DocumentNode {
 }
 
 function removeClientDirective(doc: DocumentNode) {
-  return visit(doc, {
-    OperationDefinition(node) {
-      return {
-        ...node,
-        directives: node.directives?.filter(
-          (d) => d.name.value !== "prefetch" && d.name.value !== "tool"
-        ),
-      };
-    },
-  });
+  return removeDirectivesFromDocument(
+    [{ name: "prefetch" }, { name: "tool" }],
+    doc
+  )!;
+}
+
+function invariant(condition: any, message: string): asserts condition {
+  if (!condition) {
+    throw new Error(message);
+  }
 }
