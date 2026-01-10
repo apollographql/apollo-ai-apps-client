@@ -54,8 +54,7 @@ const MY_QUERY = gql\`query HelloWorldQuery($name: string!) @tool(name: "hello-w
   name: "doStuff",
   type: "boolean",
   description: "Should we do stuff?"
-}],
-widgetSettings: { prefersBorder: true, description: "Test", domain: "https://example.com" }) { helloWorld(name: $name) }\`;
+}]) { helloWorld(name: $name) }\`;
       `,
     });
 
