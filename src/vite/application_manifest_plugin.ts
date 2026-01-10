@@ -19,8 +19,10 @@ import { removeDirectivesFromDocument } from "@apollo/client/utilities/internal"
 import { of } from "rxjs";
 import path from "path";
 import type {
+  ApplicationManifest,
   ManifestExtraInput,
   ManifestTool,
+  ManifestWidgetSettings,
 } from "../types/application-manifest.js";
 
 const root = process.cwd();
@@ -281,7 +283,7 @@ export const ApplicationManifestPlugin = () => {
       }
     }
 
-    const manifest = {
+    const manifest: ApplicationManifest = {
       format: "apollo-ai-app-manifest",
       version: "1",
       name: packageJson.name,
@@ -296,6 +298,32 @@ export const ApplicationManifestPlugin = () => {
         resourceDomains: packageJson.csp?.resourceDomains ?? [],
       },
     };
+
+    if (
+      packageJson.widgetSettings &&
+      Object.keys(packageJson.widgetSettings).length > 0
+    ) {
+      function validateWidgetSetting(
+        key: keyof ManifestWidgetSettings,
+        type: "string" | "boolean"
+      ) {
+        if (key in widgetSettings) {
+          invariant(
+            typeof widgetSettings[key] === type,
+            `Expected 'widgetSettings.${key}' to be of type '${type}' but found '${typeof widgetSettings[key]}' instead.`
+          );
+        }
+      }
+
+      const widgetSettings =
+        packageJson.widgetSettings as ManifestWidgetSettings;
+
+      validateWidgetSetting("prefersBorder", "boolean");
+      validateWidgetSetting("description", "string");
+      validateWidgetSetting("domain", "string");
+
+      manifest.widgetSettings = packageJson.widgetSettings;
+    }
 
     // Always write to build directory so the MCP server picks it up
     const dest = path.resolve(

@@ -7,6 +7,7 @@ export type ApplicationManifest = {
   resource: string;
   operations: ManifestOperation[];
   csp: ManifestCsp;
+  widgetSettings?: ManifestWidgetSettings;
 };
 
 export type ManifestOperation = {
