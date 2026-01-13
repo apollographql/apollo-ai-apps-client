@@ -314,7 +314,7 @@ export const ApplicationManifestPlugin = () => {
 
     if (
       packageJson.widgetSettings &&
-      Object.keys(packageJson.widgetSettings).length > 0
+      isNonEmptyObject(packageJson.widgetSettings)
     ) {
       function validateWidgetSetting(
         key: keyof ManifestWidgetSettings,
