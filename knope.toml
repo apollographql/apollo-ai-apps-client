@@ -17,6 +17,7 @@ ignore_conventional_commits = true
 [[workflows.steps]]
 type = "Command"
 command = "npm run format && git add package.json package-lock.json"
+shell = true
 
 [[workflows.steps]]
 type = "Command"
