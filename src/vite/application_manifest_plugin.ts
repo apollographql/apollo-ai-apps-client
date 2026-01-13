@@ -21,6 +21,7 @@ import path from "path";
 import type {
   ApplicationManifest,
   ManifestExtraInput,
+  ManifestLabels,
   ManifestTool,
   ManifestWidgetSettings,
 } from "../types/application-manifest.js";
@@ -325,6 +326,14 @@ export const ApplicationManifestPlugin = () => {
       manifest.widgetSettings = packageJson.widgetSettings;
     }
 
+    if (packageJson.labels) {
+      const labels = getLabelsFromConfig(packageJson.labels);
+
+      if (labels) {
+        manifest.labels = labels;
+      }
+    }
+
     // Always write to build directory so the MCP server picks it up
     const dest = path.resolve(
       root,
@@ -429,6 +438,40 @@ export function sortTopLevelDefinitions(query: DocumentNode): DocumentNode {
   };
 }
 
+interface LabelConfig {
+  toolInvocation?: {
+    invoking?: string;
+    invoked?: string;
+  };
+}
+
+function getLabelsFromConfig(config: LabelConfig): ManifestLabels | undefined {
+  if (!("toolInvocation" in config)) {
+    return;
+  }
+
+  const { toolInvocation } = config;
+  const labels: ManifestLabels = {};
+
+  if (Object.hasOwn(toolInvocation, "invoking")) {
+    validateType(toolInvocation.invoking, "string", {
+      propertyName: "labels.toolInvocation.invoking",
+    });
+
+    labels["toolInvocation/invoking"] = toolInvocation.invoking;
+  }
+
+  if (Object.hasOwn(toolInvocation, "invoked")) {
+    validateType(toolInvocation.invoked, "string", {
+      propertyName: "labels.toolInvocation.invoked",
+    });
+
+    labels["toolInvocation/invoked"] = toolInvocation.invoked;
+  }
+
+  return labels;
+}
+
 function removeClientDirective(doc: DocumentNode) {
   return removeDirectivesFromDocument(
     [{ name: "prefetch" }, { name: "tool" }],
@@ -440,4 +483,37 @@ function invariant(condition: any, message: string): asserts condition {
   if (!condition) {
     throw new Error(message);
   }
+}
+
+// possible values of `typeof`
+type TypeofResult =
+  | "string"
+  | "number"
+  | "bigint"
+  | "boolean"
+  | "symbol"
+  | "undefined"
+  | "object"
+  | "function";
+
+type TypeofResultToConcreteType<T extends TypeofResult> =
+  T extends "string" ? string
+  : T extends "number" ? number
+  : T extends "bigint" ? bigint
+  : T extends "boolean" ? boolean
+  : T extends "symbol" ? symbol
+  : T extends "undefined" ? undefined
+  : T extends "object" ? object
+  : T extends "function" ? Function
+  : never;
+
+function validateType<Typeof extends TypeofResult>(
+  value: unknown,
+  expectedType: Typeof,
+  options: { propertyName: string }
+): asserts value is TypeofResultToConcreteType<Typeof> {
+  invariant(
+    typeof value === expectedType,
+    `Expected '${options.propertyName}' to be of type '${expectedType}' but found '${typeof value}' instead.`
+  );
 }

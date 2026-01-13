@@ -43,6 +43,12 @@ describe("buildStart", () => {
   test("Should write to dev application manifest file when using a serve command", async () => {
     mockReadFile({
       "package.json": JSON.stringify({
+        labels: {
+          toolInvocation: {
+            invoking: "Testing global...",
+            invoked: "Tested global!",
+          },
+        },
         widgetSettings: {
           description: "Test",
           domain: "https://example.com",
@@ -90,6 +96,10 @@ const MY_QUERY = gql\`query HelloWorldQuery($name: string!) @tool(
         },
         "format": "apollo-ai-app-manifest",
         "hash": "abc",
+        "labels": {
+          "toolInvocation/invoked": "Tested global!",
+          "toolInvocation/invoking": "Testing global...",
+        },
         "operations": [
           {
             "body": "query HelloWorldQuery($name: string!) {
