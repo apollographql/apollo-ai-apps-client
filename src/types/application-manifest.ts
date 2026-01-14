@@ -8,6 +8,7 @@ export type ApplicationManifest = {
   operations: ManifestOperation[];
   csp: ManifestCsp;
   widgetSettings?: ManifestWidgetSettings;
+  labels?: ManifestLabels;
 };
 
 export type ManifestOperation = {
@@ -25,6 +26,7 @@ export type ManifestTool = {
   name: string;
   description: string;
   extraInputs?: ManifestExtraInput[];
+  labels?: ManifestLabels;
 };
 
 export type ManifestWidgetSettings = {
@@ -42,4 +44,9 @@ export type ManifestExtraInput = {
 export type ManifestCsp = {
   connectDomains: string[];
   resourceDomains: string[];
+};
+
+export type ManifestLabels = {
+  "toolInvocation/invoking"?: string;
+  "toolInvocation/invoked"?: string;
 };

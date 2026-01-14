@@ -21,6 +21,7 @@ import path from "path";
 import type {
   ApplicationManifest,
   ManifestExtraInput,
+  ManifestLabels,
   ManifestTool,
   ManifestWidgetSettings,
 } from "../types/application-manifest.js";
@@ -180,6 +181,8 @@ export const ApplicationManifestPlugin = () => {
             directive
           );
 
+          const labelsNode = getDirectiveArgument("labels", directive);
+
           const toolOptions: ManifestTool = {
             name,
             description,
@@ -190,6 +193,16 @@ export const ApplicationManifestPlugin = () => {
               extraInputsNode,
               Kind.LIST
             ) as ManifestExtraInput[];
+          }
+
+          if (labelsNode) {
+            const labels = getLabelsFromConfig(
+              getArgumentValue(labelsNode, Kind.OBJECT)
+            );
+
+            if (labels) {
+              toolOptions.labels = labels;
+            }
           }
 
           return toolOptions;
@@ -301,7 +314,7 @@ export const ApplicationManifestPlugin = () => {
 
     if (
       packageJson.widgetSettings &&
-      Object.keys(packageJson.widgetSettings).length > 0
+      isNonEmptyObject(packageJson.widgetSettings)
     ) {
       function validateWidgetSetting(
         key: keyof ManifestWidgetSettings,
@@ -323,6 +336,14 @@ export const ApplicationManifestPlugin = () => {
       validateWidgetSetting("domain", "string");
 
       manifest.widgetSettings = packageJson.widgetSettings;
+    }
+
+    if (packageJson.labels) {
+      const labels = getLabelsFromConfig(packageJson.labels);
+
+      if (labels) {
+        manifest.labels = labels;
+      }
     }
 
     // Always write to build directory so the MCP server picks it up
@@ -429,6 +450,42 @@ export function sortTopLevelDefinitions(query: DocumentNode): DocumentNode {
   };
 }
 
+interface LabelConfig {
+  toolInvocation?: {
+    invoking?: string;
+    invoked?: string;
+  };
+}
+
+function getLabelsFromConfig(config: LabelConfig): ManifestLabels | undefined {
+  if (!("toolInvocation" in config)) {
+    return;
+  }
+
+  const { toolInvocation } = config;
+  const labels: ManifestLabels = {};
+
+  if (Object.hasOwn(toolInvocation, "invoking")) {
+    validateType(toolInvocation.invoking, "string", {
+      propertyName: "labels.toolInvocation.invoking",
+    });
+
+    labels["toolInvocation/invoking"] = toolInvocation.invoking;
+  }
+
+  if (Object.hasOwn(toolInvocation, "invoked")) {
+    validateType(toolInvocation.invoked, "string", {
+      propertyName: "labels.toolInvocation.invoked",
+    });
+
+    labels["toolInvocation/invoked"] = toolInvocation.invoked;
+  }
+
+  if (isNonEmptyObject(labels)) {
+    return labels;
+  }
+}
+
 function removeClientDirective(doc: DocumentNode) {
   return removeDirectivesFromDocument(
     [{ name: "prefetch" }, { name: "tool" }],
@@ -440,4 +497,41 @@ function invariant(condition: any, message: string): asserts condition {
   if (!condition) {
     throw new Error(message);
   }
+}
+
+// possible values of `typeof`
+type TypeofResult =
+  | "string"
+  | "number"
+  | "bigint"
+  | "boolean"
+  | "symbol"
+  | "undefined"
+  | "object"
+  | "function";
+
+type TypeofResultToConcreteType<T extends TypeofResult> =
+  T extends "string" ? string
+  : T extends "number" ? number
+  : T extends "bigint" ? bigint
+  : T extends "boolean" ? boolean
+  : T extends "symbol" ? symbol
+  : T extends "undefined" ? undefined
+  : T extends "object" ? object
+  : T extends "function" ? Function
+  : never;
+
+function validateType<Typeof extends TypeofResult>(
+  value: unknown,
+  expectedType: Typeof,
+  options: { propertyName: string }
+): asserts value is TypeofResultToConcreteType<Typeof> {
+  invariant(
+    typeof value === expectedType,
+    `Expected '${options.propertyName}' to be of type '${expectedType}' but found '${typeof value}' instead.`
+  );
+}
+
+function isNonEmptyObject(obj: object) {
+  return Object.keys(obj).length > 0;
 }

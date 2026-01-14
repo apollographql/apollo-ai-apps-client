@@ -43,6 +43,12 @@ describe("buildStart", () => {
   test("Should write to dev application manifest file when using a serve command", async () => {
     mockReadFile({
       "package.json": JSON.stringify({
+        labels: {
+          toolInvocation: {
+            invoking: "Testing global...",
+            invoked: "Tested global!",
+          },
+        },
         widgetSettings: {
           description: "Test",
           domain: "https://example.com",
@@ -50,11 +56,21 @@ describe("buildStart", () => {
         } satisfies ManifestWidgetSettings,
       }),
       [`${root}/my-component.tsx`]: `
-const MY_QUERY = gql\`query HelloWorldQuery($name: string!) @tool(name: "hello-world", description: "This is an awesome tool!", extraInputs: [{
-  name: "doStuff",
-  type: "boolean",
-  description: "Should we do stuff?"
-}]) { helloWorld(name: $name) }\`;
+const MY_QUERY = gql\`query HelloWorldQuery($name: string!) @tool(
+  name: "hello-world",
+  description: "This is an awesome tool!",
+  extraInputs: [{
+    name: "doStuff",
+    type: "boolean",
+    description: "Should we do stuff?"
+  }],
+  labels: {
+    toolInvocation: {
+      invoking: "Testing tool...",
+      invoked: "Tested tool!"
+    }
+  }
+) { helloWorld(name: $name) }\`;
       `,
     });
 
@@ -86,6 +102,10 @@ const MY_QUERY = gql\`query HelloWorldQuery($name: string!) @tool(name: "hello-w
         },
         "format": "apollo-ai-app-manifest",
         "hash": "abc",
+        "labels": {
+          "toolInvocation/invoked": "Tested global!",
+          "toolInvocation/invoking": "Testing global...",
+        },
         "operations": [
           {
             "body": "query HelloWorldQuery($name: string!) {
@@ -104,6 +124,10 @@ const MY_QUERY = gql\`query HelloWorldQuery($name: string!) @tool(name: "hello-w
                     "type": "boolean",
                   },
                 ],
+                "labels": {
+                  "toolInvocation/invoked": "Tested tool!",
+                  "toolInvocation/invoking": "Testing tool...",
+                },
                 "name": "hello-world",
               },
             ],
@@ -712,6 +736,131 @@ const MY_QUERY = gql\`query HelloWorldQuery($name: string!) @tool(name: "hello-w
       }),
       "my-component.tsx": `
         const MY_QUERY = gql\`query HelloWorldQuery @tool(name: "test", description: "Test") { helloWorld }\`;
+      `,
+    });
+    vi.spyOn(glob, "glob").mockImplementation(() =>
+      Promise.resolve(["my-component.tsx"])
+    );
+    vi.spyOn(path, "resolve").mockImplementation((_, file) => file);
+    vi.spyOn(fs, "writeFileSync");
+
+    const plugin = ApplicationManifestPlugin();
+    plugin.configResolved({ command: "serve", server: {}, build: {} });
+
+    await expect(plugin.buildStart()).resolves.toBeUndefined();
+  });
+
+  test("Should error when labels.toolInvocation.invoking in package.json is not a string", async () => {
+    mockReadFile({
+      "package.json": JSON.stringify({
+        labels: {
+          toolInvocation: {
+            invoking: true,
+          },
+        },
+      }),
+      "my-component.tsx": `
+        const MY_QUERY = gql\`query HelloWorldQuery @tool(name: "test", description: "Test") { helloWorld }\`;
+      `,
+    });
+    vi.spyOn(glob, "glob").mockImplementation(() =>
+      Promise.resolve(["my-component.tsx"])
+    );
+    vi.spyOn(path, "resolve").mockImplementation((_, file) => file);
+    vi.spyOn(fs, "writeFileSync");
+
+    const plugin = ApplicationManifestPlugin();
+    plugin.configResolved({ command: "serve", server: {} });
+
+    await expect(
+      async () => await plugin.buildStart()
+    ).rejects.toThrowErrorMatchingInlineSnapshot(
+      `[Error: Expected 'labels.toolInvocation.invoking' to be of type 'string' but found 'boolean' instead.]`
+    );
+  });
+
+  test("Should error when labels.toolInvocation.invoking in @tool is not a string", async () => {
+    mockReadFile({
+      "package.json": JSON.stringify({}),
+      "my-component.tsx": `
+        const MY_QUERY = gql\`query HelloWorldQuery @tool(name: "test", description: "Test", labels: { toolInvocation: { invoking: true } }) { helloWorld }\`;
+      `,
+    });
+    vi.spyOn(glob, "glob").mockImplementation(() =>
+      Promise.resolve(["my-component.tsx"])
+    );
+    vi.spyOn(path, "resolve").mockImplementation((_, file) => file);
+    vi.spyOn(fs, "writeFileSync");
+
+    const plugin = ApplicationManifestPlugin();
+    plugin.configResolved({ command: "serve", server: {} });
+
+    await expect(
+      async () => await plugin.buildStart()
+    ).rejects.toThrowErrorMatchingInlineSnapshot(
+      `[Error: Expected 'labels.toolInvocation.invoking' to be of type 'string' but found 'boolean' instead.]`
+    );
+  });
+
+  test("Should error when labels.toolInvocation.invoked in package.json is not a string", async () => {
+    mockReadFile({
+      "package.json": JSON.stringify({
+        labels: {
+          toolInvocation: {
+            invoked: true,
+          },
+        },
+      }),
+      "my-component.tsx": `
+        const MY_QUERY = gql\`query HelloWorldQuery @tool(name: "test", description: "Test") { helloWorld }\`;
+      `,
+    });
+    vi.spyOn(glob, "glob").mockImplementation(() =>
+      Promise.resolve(["my-component.tsx"])
+    );
+    vi.spyOn(path, "resolve").mockImplementation((_, file) => file);
+    vi.spyOn(fs, "writeFileSync");
+
+    const plugin = ApplicationManifestPlugin();
+    plugin.configResolved({ command: "serve", server: {} });
+
+    await expect(
+      async () => await plugin.buildStart()
+    ).rejects.toThrowErrorMatchingInlineSnapshot(
+      `[Error: Expected 'labels.toolInvocation.invoked' to be of type 'string' but found 'boolean' instead.]`
+    );
+  });
+
+  test("Should error when labels.toolInvocation.invoked in @tool is not a string", async () => {
+    mockReadFile({
+      "package.json": JSON.stringify({}),
+      "my-component.tsx": `
+        const MY_QUERY = gql\`query HelloWorldQuery @tool(name: "test", description: "Test", labels: { toolInvocation: { invoked: true } }) { helloWorld }\`;
+      `,
+    });
+    vi.spyOn(glob, "glob").mockImplementation(() =>
+      Promise.resolve(["my-component.tsx"])
+    );
+    vi.spyOn(path, "resolve").mockImplementation((_, file) => file);
+    vi.spyOn(fs, "writeFileSync");
+
+    const plugin = ApplicationManifestPlugin();
+    plugin.configResolved({ command: "serve", server: {} });
+
+    await expect(
+      async () => await plugin.buildStart()
+    ).rejects.toThrowErrorMatchingInlineSnapshot(
+      `[Error: Expected 'labels.toolInvocation.invoked' to be of type 'string' but found 'boolean' instead.]`
+    );
+  });
+
+  test("Should allow empty labels value", async () => {
+    mockReadFile({
+      "package.json": JSON.stringify({
+        labels: {},
+      }),
+      "my-component.tsx": `
+        const MY_QUERY = gql\`query HelloWorldQuery @tool(name: "test", description: "Test", labels: {}) { helloWorld }\`;
       `,
     });
     vi.spyOn(glob, "glob").mockImplementation(() =>

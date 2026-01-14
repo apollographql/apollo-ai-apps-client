@@ -18,6 +18,8 @@ export type {
   ManifestTool,
   ManifestExtraInput,
   ManifestCsp,
+  ManifestLabels,
+  ManifestWidgetSettings,
 } from "./types/application-manifest.js";
 
 export { ToolUseProvider } from "./react/context/ToolUseContext.js";
