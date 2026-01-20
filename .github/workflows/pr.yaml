@@ -93,7 +93,7 @@ jobs:
           node-version: 24.x
 
       - name: Install dependencies
-        uses: npm ci
+        run: npm ci
 
       - name: Run build
         run: npm run build
