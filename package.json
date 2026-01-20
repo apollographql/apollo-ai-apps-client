@@ -32,7 +32,8 @@
     "changeset": "knope document-change",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "typecheck": "tsc -b --emitDeclarationOnly"
+    "typecheck": "tsc -b --emitDeclarationOnly",
+    "attw": "npm run build && attw --pack . --ignore-rules cjs-resolves-to-esm --profile node16"
   },
   "keywords": [],
   "author": "",
