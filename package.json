@@ -32,7 +32,8 @@
     "changeset": "knope document-change",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "typecheck": "tsc -b --emitDeclarationOnly"
+    "typecheck": "tsc -b --emitDeclarationOnly",
+    "attw": "npm run build && attw --pack . --ignore-rules cjs-resolves-to-esm --profile node16"
   },
   "keywords": [],
   "author": "",
@@ -40,6 +41,7 @@
   "description": "",
   "devDependencies": {
     "@apollo/client": "^4.0.12",
+    "@arethetypeswrong/cli": "^0.18.2",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.0",
     "@testing-library/react-render-stream": "^2.0.2",
