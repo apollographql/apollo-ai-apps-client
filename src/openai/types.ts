@@ -55,7 +55,11 @@ export class SetGlobalsEvent extends CustomEvent<{
 export type CallTool = (
   name: string,
   args: Record<string, unknown>
-) => Promise<any>;
+) => Promise<CallToolResponse>;
+
+export type CallToolResponse = {
+  result: string;
+};
 
 export type DisplayMode = "pip" | "inline" | "fullscreen";
 
