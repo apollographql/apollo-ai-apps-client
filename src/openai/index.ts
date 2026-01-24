@@ -1,6 +1,7 @@
 export type {
   API,
   CallTool,
+  CallToolResponse,
   DeviceType,
   DisplayMode,
   OpenAiGlobals,
