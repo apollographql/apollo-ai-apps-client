@@ -5,11 +5,7 @@ import { removeDirectivesFromDocument } from "@apollo/client/utilities/internal"
 import { parse } from "graphql";
 import { __DEV__ } from "@apollo/client/utilities/environment";
 import type { ApplicationManifest } from "../../types/application-manifest.js";
-import {
-  SET_GLOBALS_EVENT_TYPE,
-  SetGlobalsEvent,
-  type OpenAiGlobals,
-} from "../types.js";
+import { SET_GLOBALS_EVENT_TYPE } from "../types.js";
 import { ToolCallLink } from "../link/ToolCallLink.js";
 
 export declare namespace ApolloClient {
