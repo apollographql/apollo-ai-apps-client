@@ -25,6 +25,7 @@ import type {
   ManifestTool,
   ManifestWidgetSettings,
 } from "../types/application-manifest.js";
+import { invariant } from "../utilities/index.js";
 
 const root = process.cwd();
 
@@ -493,12 +494,6 @@ function removeClientDirective(doc: DocumentNode) {
     [{ name: "prefetch" }, { name: "tool" }],
     doc
   )!;
-}
-
-function invariant(condition: any, message: string): asserts condition {
-  if (!condition) {
-    throw new Error(message);
-  }
 }
 
 // possible values of `typeof`
