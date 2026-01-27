@@ -2,7 +2,6 @@ import type { ReactNode } from "react";
 import { useEffect, useState } from "react";
 import { ApolloProvider as BaseApolloProvider } from "@apollo/client/react";
 import type { ApolloClient } from "../core/ApolloClient.js";
-import { SET_GLOBALS_EVENT_TYPE } from "../types.js";
 
 export declare namespace ApolloProvider {
   export interface Props {
@@ -14,26 +13,19 @@ export declare namespace ApolloProvider {
 export const ApolloProvider = ({ children, client }: ApolloProvider.Props) => {
   const [hasPreloaded, setHasPreloaded] = useState(false);
 
-  // This is to prevent against a race condition. We don't know if window.openai will be available when this loads or if it will become available shortly after.
-  // So... we create the event listener and whenever it is available, then we can process the prefetch/tool data.
-  // In practice, this should be pretty much instant
   useEffect(() => {
-    const prefetchData = async () => {
+    let ignored = false;
+
+    (async function prefetchData() {
       await client.prefetchData();
-      setHasPreloaded(true);
-      window.removeEventListener(SET_GLOBALS_EVENT_TYPE, prefetchData);
-    };
 
-    window.addEventListener(SET_GLOBALS_EVENT_TYPE, prefetchData, {
-      passive: true,
-    });
-
-    if (window.openai?.toolOutput) {
-      window.dispatchEvent(new CustomEvent(SET_GLOBALS_EVENT_TYPE));
-    }
+      if (!ignored) {
+        setHasPreloaded(true);
+      }
+    })();
 
     return () => {
-      window.removeEventListener(SET_GLOBALS_EVENT_TYPE, prefetchData);
+      ignored = true;
     };
   }, []);
 

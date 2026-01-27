@@ -5,6 +5,11 @@ import { removeDirectivesFromDocument } from "@apollo/client/utilities/internal"
 import { parse } from "graphql";
 import { __DEV__ } from "@apollo/client/utilities/environment";
 import type { ApplicationManifest } from "../../types/application-manifest.js";
+import {
+  SET_GLOBALS_EVENT_TYPE,
+  SetGlobalsEvent,
+  type OpenAiGlobals,
+} from "../types.js";
 import { ToolCallLink } from "../link/ToolCallLink.js";
 
 export declare namespace ApolloClient {
@@ -41,9 +46,35 @@ export class ApolloClient extends BaseApolloClient {
   }
 
   async prefetchData() {
-    const toolOutput = window.openai.toolOutput as {
+    async function waitForToolOutput(): Promise<{
       prefetch?: Record<string, ApolloLink.Result<any>>;
-    } | null;
+    } | null> {
+      if (window.openai?.toolOutput !== undefined) {
+        return window.openai.toolOutput;
+      }
+
+      return new Promise((resolve) => {
+        const controller = new AbortController();
+
+        window.addEventListener(
+          SET_GLOBALS_EVENT_TYPE,
+          (event) => {
+            resolve(event.detail.globals.toolOutput ?? null);
+            controller.abort();
+          },
+          {
+            passive: true,
+            signal: controller.signal,
+          }
+        );
+      });
+    }
+
+    const toolOutput = await waitForToolOutput();
+
+    if (!toolOutput) {
+      return;
+    }
 
     // Write prefetched data to the cache
     this.manifest.operations.forEach((operation) => {
