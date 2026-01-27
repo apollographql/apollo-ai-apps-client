@@ -23,18 +23,18 @@ export function ApolloProvider({ children, client }: ApolloProvider.Props) {
   }
 
   useEffect(() => {
-    let ignored = false;
+    let mounted = true;
 
     (async function prefetchData() {
       await client.prefetchData();
 
-      if (!ignored) {
+      if (mounted) {
         setHasPreloaded(true);
       }
     })();
 
     return () => {
-      ignored = true;
+      mounted = false;
     };
   }, []);
 
