@@ -2,6 +2,9 @@ import type { ReactNode } from "react";
 import { useEffect, useState } from "react";
 import { ApolloProvider as BaseApolloProvider } from "@apollo/client/react";
 import type { ApolloClient } from "../openai/core/ApolloClient.js";
+import { __DEV__ } from "@apollo/client/utilities/environment";
+import { aiClientSymbol } from "../openai/core/constants.js";
+import { invariant } from "../utilities/invariant.js";
 
 export declare namespace ApolloProvider {
   export interface Props {
@@ -12,6 +15,13 @@ export declare namespace ApolloProvider {
 
 export const ApolloProvider = ({ children, client }: ApolloProvider.Props) => {
   const [hasPreloaded, setHasPreloaded] = useState(false);
+
+  if (__DEV__) {
+    invariant(
+      client["info"] === aiClientSymbol,
+      'The "client" instance provided to <ApolloProvider /> is the wrong instance. You might have imported `ApolloClient` from `@apollo/client`. Please import `ApolloClient` from `@apollo/client-ai-apps` instead.'
+    );
+  }
 
   useEffect(() => {
     let ignored = false;
