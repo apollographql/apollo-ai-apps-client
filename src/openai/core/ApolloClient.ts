@@ -45,30 +45,6 @@ export class ApolloClient extends BaseApolloClient {
   }
 
   waitForInitialization = cacheAsync(async () => {
-    async function waitForToolOutput(): Promise<{
-      prefetch?: Record<string, ApolloLink.Result<any>>;
-    } | null> {
-      if (window.openai?.toolOutput !== undefined) {
-        return window.openai.toolOutput;
-      }
-
-      return new Promise((resolve) => {
-        const controller = new AbortController();
-
-        window.addEventListener(
-          SET_GLOBALS_EVENT_TYPE,
-          (event) => {
-            resolve(event.detail.globals.toolOutput ?? null);
-            controller.abort();
-          },
-          {
-            passive: true,
-            signal: controller.signal,
-          }
-        );
-      });
-    }
-
     const toolOutput = await waitForToolOutput();
 
     if (!toolOutput) {
@@ -112,6 +88,30 @@ export class ApolloClient extends BaseApolloClient {
         }
       }
     });
+  });
+}
+
+async function waitForToolOutput(): Promise<{
+  prefetch?: Record<string, ApolloLink.Result<any>>;
+} | null> {
+  if (window.openai?.toolOutput !== undefined) {
+    return window.openai.toolOutput;
+  }
+
+  return new Promise((resolve) => {
+    const controller = new AbortController();
+
+    window.addEventListener(
+      SET_GLOBALS_EVENT_TYPE,
+      (event) => {
+        resolve(event.detail.globals.toolOutput ?? null);
+        controller.abort();
+      },
+      {
+        passive: true,
+        signal: controller.signal,
+      }
+    );
   });
 }
 
