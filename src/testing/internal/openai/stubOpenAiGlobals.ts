@@ -13,6 +13,9 @@ export function stubOpenAiGlobals(globals?: Partial<API<any> & OpenAiGlobals>) {
       window.openai.widgetState = state;
       dispatchStateChange();
     },
+    // Using a `null` here instead of `undefined` allows for the client to fully
+    // initialize without having to wait for the global openAI event.
+    toolOutput: null,
     ...globals,
   });
 }
