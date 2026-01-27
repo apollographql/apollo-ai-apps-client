@@ -13,7 +13,7 @@ export declare namespace ApolloProvider {
 }
 
 export function ApolloProvider({ children, client }: ApolloProvider.Props) {
-  const [hasPreloaded, setHasPreloaded] = useState(false);
+  const [initialized, setInitialized] = useState(false);
 
   if (__DEV__) {
     invariant(
@@ -25,20 +25,22 @@ export function ApolloProvider({ children, client }: ApolloProvider.Props) {
   useEffect(() => {
     let mounted = true;
 
-    (async function prefetchData() {
+    async function initialize() {
       await client.waitForInitialization();
 
       if (mounted) {
-        setHasPreloaded(true);
+        setInitialized(true);
       }
-    })();
+    }
+
+    initialize();
 
     return () => {
       mounted = false;
     };
   }, []);
 
-  return hasPreloaded ?
+  return initialized ?
       <BaseApolloProvider client={client}>{children}</BaseApolloProvider>
     : null;
 }
