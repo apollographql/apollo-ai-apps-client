@@ -1,15 +1,5 @@
 export type UnknownObject = Record<string, unknown>;
 
-declare global {
-  interface Window {
-    openai: API<any> & OpenAiGlobals;
-  }
-
-  interface WindowEventMap {
-    [SET_GLOBALS_EVENT_TYPE]: SetGlobalsEvent;
-  }
-}
-
 export type OpenAiGlobals<
   ToolInput extends UnknownObject = UnknownObject,
   ToolOutput extends UnknownObject = UnknownObject,
@@ -65,7 +55,11 @@ export class SetGlobalsEvent extends CustomEvent<{
 export type CallTool = (
   name: string,
   args: Record<string, unknown>
-) => Promise<any>;
+) => Promise<CallToolResponse>;
+
+export type CallToolResponse = {
+  result: string;
+};
 
 export type DisplayMode = "pip" | "inline" | "fullscreen";
 

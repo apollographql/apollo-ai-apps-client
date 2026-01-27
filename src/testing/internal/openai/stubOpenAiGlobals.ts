@@ -3,7 +3,8 @@ import type {
   API,
   OpenAiGlobals,
   UnknownObject,
-} from "../../../types/openai.js";
+} from "../../../openai/types.js";
+import "../../../openai/globals.js";
 import { dispatchStateChange } from "./dispatchStateChange.js";
 
 export function stubOpenAiGlobals(globals?: Partial<API<any> & OpenAiGlobals>) {
@@ -12,6 +13,9 @@ export function stubOpenAiGlobals(globals?: Partial<API<any> & OpenAiGlobals>) {
       window.openai.widgetState = state;
       dispatchStateChange();
     },
+    // Using a `null` here instead of `undefined` allows for the client to fully
+    // initialize without having to wait for the global openAI event.
+    toolOutput: null,
     ...globals,
   });
 }

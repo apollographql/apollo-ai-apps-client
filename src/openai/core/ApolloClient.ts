@@ -4,18 +4,9 @@ import { DocumentTransform } from "@apollo/client";
 import { removeDirectivesFromDocument } from "@apollo/client/utilities/internal";
 import { parse } from "graphql";
 import { __DEV__ } from "@apollo/client/utilities/environment";
-import "../types/openai.js";
-import type { ApplicationManifest } from "../types/application-manifest.js";
+import type { ApplicationManifest } from "../../types/application-manifest.js";
+import { SET_GLOBALS_EVENT_TYPE } from "../types.js";
 import { ToolCallLink } from "../link/ToolCallLink.js";
-import type { FetchResult } from "@apollo/client";
-
-// TODO: In the future if/when we support PQs again, do pqLink.concat(toolCallLink)
-// Commenting this out for now.
-//  import { sha256 } from "crypto-hash";
-// import { PersistedQueryLink } from "@apollo/client/link/persisted-queries";
-// const pqLink = new PersistedQueryLink({
-//   sha256: (queryString) => sha256(queryString),
-// });
 
 export declare namespace ApolloClient {
   // This allows us to extend the options with the "manifest" option AND make link optional (it is normally required)
@@ -51,14 +42,39 @@ export class ApolloClient extends BaseApolloClient {
   }
 
   async prefetchData() {
-    const toolOutput = window.openai.toolOutput as {
-      prefetch?: Record<string, FetchResult<any>>;
-    } | null;
+    async function waitForToolOutput(): Promise<{
+      prefetch?: Record<string, ApolloLink.Result<any>>;
+    } | null> {
+      if (window.openai?.toolOutput !== undefined) {
+        return window.openai.toolOutput;
+      }
+
+      return new Promise((resolve) => {
+        const controller = new AbortController();
+
+        window.addEventListener(
+          SET_GLOBALS_EVENT_TYPE,
+          (event) => {
+            resolve(event.detail.globals.toolOutput ?? null);
+            controller.abort();
+          },
+          {
+            passive: true,
+            signal: controller.signal,
+          }
+        );
+      });
+    }
+
+    const toolOutput = await waitForToolOutput();
+
+    if (!toolOutput) {
+      return;
+    }
 
     // Write prefetched data to the cache
     this.manifest.operations.forEach((operation) => {
       if (
-        operation.prefetch &&
         operation.prefetchID &&
         toolOutput?.prefetch?.[operation.prefetchID]
       ) {
