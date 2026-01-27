@@ -15,7 +15,7 @@ import { ApolloProvider } from "../../ApolloProvider";
 import { stubOpenAiGlobals } from "../../../../testing/internal";
 
 test("returns the `ApolloClient` instance in context", async () => {
-  stubOpenAiGlobals({ toolOutput: {} });
+  stubOpenAiGlobals();
 
   const client = new ApolloClient({
     cache: new InMemoryCache(),
@@ -39,7 +39,7 @@ test("returns the `ApolloClient` instance in context", async () => {
 // This is failing because <ApolloProvider /> runs `client.prefetchData` which
 // doesn't exist on the base client. This test documents the behavior for now.
 test.fails("throws when providing base apollo client instance", async () => {
-  stubOpenAiGlobals({ toolOutput: {} });
+  stubOpenAiGlobals();
 
   const client = new BaseApolloClient({
     cache: new InMemoryCache(),
