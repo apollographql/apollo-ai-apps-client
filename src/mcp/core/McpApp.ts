@@ -30,8 +30,7 @@ export class McpApp {
         new PostMessageTransport(window.parent, window.parent)
       );
     } catch (e) {
-      const error =
-        e instanceof Error ? e : new Error("Failed to connect", { cause: e });
+      const error = e instanceof Error ? e : new Error("Failed to connect");
 
       throw error;
     }
