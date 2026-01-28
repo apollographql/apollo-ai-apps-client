@@ -21,7 +21,11 @@ export class ApolloClient extends BaseApolloClient {
   manifest: ApplicationManifest;
   readonly app: McpApp;
 
-  protected readonly info = aiClientSymbol;
+  /**
+   * @internal
+   * @deprecated For internal use. Do not use directly.
+   */
+  readonly info = aiClientSymbol;
 
   constructor(options: ApolloClient.Options) {
     const link = options.link ?? new ToolCallLink();
