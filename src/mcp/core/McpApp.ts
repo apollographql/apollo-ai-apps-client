@@ -1,7 +1,10 @@
 import { App, PostMessageTransport } from "@modelcontextprotocol/ext-apps";
 import type { ApplicationManifest } from "../../types/application-manifest";
 
-type State = Record<"toolResult" | "toolInput", unknown>;
+interface State {
+  toolResult: Parameters<App["ontoolresult"]>[0] | undefined;
+  toolInput: Parameters<App["ontoolinput"]>[0] | undefined;
+}
 
 export class McpApp {
   private app: App;
@@ -62,7 +65,7 @@ export class McpApp {
     };
   }
 
-  private set(key: keyof State, value: unknown) {
+  private set<Key extends keyof State>(key: Key, value: State[Key]) {
     this.state[key] = value;
     this.notify(key);
   }
