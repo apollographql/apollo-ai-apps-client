@@ -11,6 +11,8 @@ export type {
   ManifestWidgetSettings,
 } from "./types/application-manifest.js";
 
+export { ApolloProvider } from "./react/index.js";
+
 export declare namespace ApolloClient {
   export interface Options extends Omit<BaseApolloClient.Options, "link"> {
     link?: BaseApolloClient.Options["link"];
