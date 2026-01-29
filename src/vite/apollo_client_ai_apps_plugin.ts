@@ -1,11 +1,31 @@
-import { invariant } from "@apollo/client/utilities/invariant";
 import type { Plugin } from "vite";
+import { invariant } from "@apollo/client/utilities/invariant";
+import { ApplicationManifestPlugin } from "./application_manifest_plugin";
+import { AbsoluteAssetImportsPlugin } from "./absolute_asset_imports_plugin";
 
-export interface ApolloAppsPluginOptions {
-  target: "openai" | "mcp";
+export declare namespace ApolloClientAiAppsPlugin {
+  export interface Options extends BaseApolloClientAiAppsPlugin.Options {}
 }
 
-export function ApolloClientAiApps(options: ApolloAppsPluginOptions) {
+export function ApolloClientAiAppsPlugin(
+  options: ApolloClientAiAppsPlugin.Options
+) {
+  return [
+    BaseApolloClientAiAppsPlugin(options),
+    ApplicationManifestPlugin(),
+    AbsoluteAssetImportsPlugin(),
+  ];
+}
+
+export declare namespace BaseApolloClientAiAppsPlugin {
+  export interface Options {
+    target: "openai" | "mcp";
+  }
+}
+
+export function BaseApolloClientAiAppsPlugin(
+  options: BaseApolloClientAiAppsPlugin.Options
+) {
   const { target } = options;
 
   invariant(
