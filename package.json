@@ -28,35 +28,23 @@
       }
     },
     "./mcp": {
-      "openai": {
-        "default": "./dist/utilities/emptyModule.js"
-      },
-      "default": {
-        "types": "./dist/mcp/index.d.ts",
-        "default": "./dist/mcp/index.js"
-      }
+      "openai": "./dist/utilities/emptyModule.js",
+      "types": "./dist/mcp/index.d.ts",
+      "default": "./dist/mcp/index.js"
     },
     "./react": {
       "types": "./dist/react/index.d.ts",
       "default": "./dist/react/index.js"
     },
     "./openai": {
-      "mcp": {
-        "default": "./dist/utilities/emptyModule.js"
-      },
-      "default": {
-        "types": "./dist/openai/index.d.ts",
-        "default": "./dist/openai/index.js"
-      }
+      "mcp": "./dist/utilities/emptyModule.js",
+      "types": "./dist/openai/index.d.ts",
+      "default": "./dist/openai/index.js"
     },
     "./openai/globals": {
-      "mcp": {
-        "default": "./dist/utilities/emptyModule.js"
-      },
-      "default": {
-        "types": "./dist/openai/globals.d.ts",
-        "default": "./dist/openai/globals.js"
-      }
+      "mcp": "./dist/utilities/emptyModule.js",
+      "types": "./dist/openai/globals.d.ts",
+      "default": "./dist/openai/globals.js"
     },
     "./vite": {
       "types": "./dist/vite/index.d.ts",
