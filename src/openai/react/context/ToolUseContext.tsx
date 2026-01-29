@@ -2,7 +2,6 @@ import type { ReactNode } from "react";
 import { createContext, useContext, useState } from "react";
 
 interface ToolUseState {
-  appName: string;
   hasNavigated: boolean;
   setHasNavigated: (v: boolean) => void;
 }
@@ -12,15 +11,14 @@ const ToolUseContext = createContext<ToolUseState | null>(null);
 export declare namespace ToolUseProvider {
   export interface Props {
     children?: ReactNode;
-    appName: string;
   }
 }
 
-export function ToolUseProvider({ children, appName }: ToolUseProvider.Props) {
+export function ToolUseProvider({ children }: ToolUseProvider.Props) {
   const [hasNavigated, setHasNavigated] = useState(false);
 
   return (
-    <ToolUseContext.Provider value={{ hasNavigated, setHasNavigated, appName }}>
+    <ToolUseContext.Provider value={{ hasNavigated, setHasNavigated }}>
       {children}
     </ToolUseContext.Provider>
   );

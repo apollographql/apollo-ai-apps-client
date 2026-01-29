@@ -26,7 +26,6 @@ export const useToolEffect = (
   }, [
     ctx.hasNavigated,
     ctx.setHasNavigated,
-    ctx.appName,
     toolNames,
     fullToolName,
     toolInput,
