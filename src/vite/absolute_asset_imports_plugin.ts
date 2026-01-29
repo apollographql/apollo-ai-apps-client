@@ -1,4 +1,6 @@
-export const AbsoluteAssetImportsPlugin = () => {
+import type { Plugin } from "vite";
+
+export const AbsoluteAssetImportsPlugin = (): Plugin => {
   return {
     name: "absolute-asset-imports",
 

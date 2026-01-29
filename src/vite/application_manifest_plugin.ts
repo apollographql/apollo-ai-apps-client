@@ -1,3 +1,4 @@
+import type { Plugin } from "vite";
 import { readFileSync, writeFileSync, mkdirSync } from "fs";
 import { glob } from "glob";
 import { gqlPluckFromCodeStringSync } from "@graphql-tools/graphql-tag-pluck";
@@ -120,7 +121,7 @@ function getTypeName(type: TypeNode): string {
   return (t as NamedTypeNode).name.value;
 }
 
-export const ApplicationManifestPlugin = () => {
+export const ApplicationManifestPlugin = (): Plugin => {
   const cache = new Map();
   let packageJson: any = null;
   let config: any = null;
