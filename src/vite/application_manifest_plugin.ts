@@ -26,6 +26,7 @@ import type {
   ManifestWidgetSettings,
 } from "../types/application-manifest.js";
 import { invariant } from "../utilities/index.js";
+import type { Plugin, ResolvedConfig } from "vite";
 
 const root = process.cwd();
 
@@ -123,7 +124,7 @@ function getTypeName(type: TypeNode): string {
 export const ApplicationManifestPlugin = () => {
   const cache = new Map();
   let packageJson: any = null;
-  let config: any = null;
+  let config!: ResolvedConfig;
 
   const clientCache = new InMemoryCache();
   const client = new ApolloClient({
@@ -365,7 +366,7 @@ export const ApplicationManifestPlugin = () => {
   return {
     name: "OperationManifest",
 
-    async configResolved(resolvedConfig: any) {
+    async configResolved(resolvedConfig) {
       config = resolvedConfig;
     },
 
@@ -403,7 +404,7 @@ export const ApplicationManifestPlugin = () => {
     async writeBundle() {
       await generateManifest();
     },
-  };
+  } satisfies Plugin;
 };
 
 // Sort the definitions in this document so that operations come before fragments,
