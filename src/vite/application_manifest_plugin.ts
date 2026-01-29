@@ -1,4 +1,3 @@
-import type { Plugin } from "vite";
 import { readFileSync, writeFileSync, mkdirSync } from "fs";
 import { glob } from "glob";
 import { gqlPluckFromCodeStringSync } from "@graphql-tools/graphql-tag-pluck";
