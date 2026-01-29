@@ -7,7 +7,7 @@ import { __DEV__ } from "@apollo/client/utilities/environment";
 import type { ApplicationManifest } from "../../types/application-manifest.js";
 import { ToolCallLink } from "../link/ToolCallLink.js";
 import { aiClientSymbol, cacheAsync } from "../../utilities/index.js";
-import { McpApp } from "./McpApp.js";
+import { ApolloMcpApp } from "./ApolloMcpApp.js";
 import type { ApolloMcpServerApps } from "../../core/types.js";
 
 export declare namespace ApolloClient {
@@ -20,7 +20,7 @@ export declare namespace ApolloClient {
 
 export class ApolloClient extends BaseApolloClient {
   manifest: ApplicationManifest;
-  readonly app: McpApp;
+  readonly app: ApolloMcpApp;
 
   /**
    * @internal
@@ -48,7 +48,7 @@ export class ApolloClient extends BaseApolloClient {
     });
 
     this.manifest = options.manifest;
-    this.app = new McpApp(this.manifest);
+    this.app = new ApolloMcpApp(this.manifest);
   }
 
   waitForInitialization = cacheAsync(async () => {

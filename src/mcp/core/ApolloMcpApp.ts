@@ -18,7 +18,7 @@ type ExecuteQueryCallToolResult = Omit<CallToolResult, "structuredContent"> & {
   structuredContent: FormattedExecutionResult;
 };
 
-export class McpApp {
+export class ApolloMcpApp {
   private app: App;
   private state: State = { toolResult: undefined, toolInput: undefined };
   private handlers = new Map<keyof State, Set<(...args: any[]) => any>>();
