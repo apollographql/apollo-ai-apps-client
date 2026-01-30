@@ -28,23 +28,29 @@
       }
     },
     "./mcp": {
-      "openai": "./dist/utilities/emptyModule.js",
-      "types": "./dist/mcp/index.d.ts",
-      "default": "./dist/mcp/index.js"
+      "mcp": {
+        "types": "./dist/mcp/index.d.ts",
+        "default": "./dist/mcp/index.js"
+      },
+      "default": "./dist/utilities/emptyModule.js"
     },
     "./react": {
       "types": "./dist/react/index.d.ts",
       "default": "./dist/react/index.js"
     },
     "./openai": {
-      "mcp": "./dist/utilities/emptyModule.js",
-      "types": "./dist/openai/index.d.ts",
-      "default": "./dist/openai/index.js"
+      "openai": {
+        "types": "./dist/openai/index.d.ts",
+        "default": "./dist/openai/index.js"
+      },
+      "default": "./dist/utilities/emptyModule.js"
     },
     "./openai/globals": {
-      "mcp": "./dist/utilities/emptyModule.js",
-      "types": "./dist/openai/globals.d.ts",
-      "default": "./dist/openai/globals.js"
+      "openai": {
+        "types": "./dist/openai/globals.d.ts",
+        "default": "./dist/openai/globals.js"
+      },
+      "default": "./dist/utilities/emptyModule.js"
     },
     "./vite": {
       "types": "./dist/vite/index.d.ts",
