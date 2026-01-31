@@ -1,4 +1,5 @@
 {
+  "$schema": "https://www.schemastore.org/package.json",
   "name": "@apollo/client-ai-apps",
   "version": "0.4.0",
   "publishConfig": {
@@ -12,8 +13,49 @@
   "module": "dist/index.js",
   "types": "dist/index.d.ts",
   "exports": {
-    ".": "./dist/index.js",
-    "./vite": "./dist/vite/index.js"
+    ".": {
+      "mcp": {
+        "types": "./dist/index.mcp.d.ts",
+        "default": "./dist/index.mcp.js"
+      },
+      "openai": {
+        "types": "./dist/index.openai.d.ts",
+        "default": "./dist/index.openai.js"
+      },
+      "default": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      }
+    },
+    "./mcp": {
+      "mcp": {
+        "types": "./dist/mcp/index.d.ts",
+        "default": "./dist/mcp/index.js"
+      },
+      "default": "./dist/utilities/emptyModule.js"
+    },
+    "./react": {
+      "types": "./dist/react/index.d.ts",
+      "default": "./dist/react/index.js"
+    },
+    "./openai": {
+      "openai": {
+        "types": "./dist/openai/index.d.ts",
+        "default": "./dist/openai/index.js"
+      },
+      "default": "./dist/utilities/emptyModule.js"
+    },
+    "./openai/globals": {
+      "openai": {
+        "types": "./dist/openai/globals.d.ts",
+        "default": "./dist/openai/globals.js"
+      },
+      "default": "./dist/utilities/emptyModule.js"
+    },
+    "./vite": {
+      "types": "./dist/vite/index.d.ts",
+      "default": "./dist/vite/index.js"
+    }
   },
   "devEngines": {
     "packageManager": {
@@ -42,6 +84,7 @@
   "devDependencies": {
     "@apollo/client": "^4.0.12",
     "@arethetypeswrong/cli": "^0.18.2",
+    "@modelcontextprotocol/ext-apps": "^0.4.1",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.0",
     "@testing-library/react-render-stream": "^2.0.2",
@@ -60,8 +103,14 @@
   },
   "peerDependencies": {
     "@apollo/client": "^4.0.0",
+    "@modelcontextprotocol/ext-apps": "^0.4.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
+  },
+  "peerDependenciesMeta": {
+    "@modelcontextprotocol/ext-apps": {
+      "optional": true
+    }
   },
   "dependencies": {
     "@graphql-tools/graphql-tag-pluck": "^8.3.23",
